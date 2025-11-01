@@ -1,29 +1,22 @@
 locals {
-  project        = "project-circle-assignment"
+  project        = "quiz-ai"
   aws_region     = "eu-central-1"
   rel_path_raw   = path_relative_to_include()
-  # נרמול: המרה ל-/ והסרת סלשים בקצוות
   rel_path_norm  = trim(replace(local.rel_path_raw, "\\", "/"), "/")
-
-  # אם rel_path_norm ריק (למשל בקובץ root), נ fallback ל-environment
   environment    = split(local.rel_path_norm != "" ? local.rel_path_norm : "unknown", "/")[0]
   aws_account_id = "505825010815"
-  github_repo    = "Ilay1214/project_circle_assignment"
+  github_repo    = "Ilay1214/quiz_ai_infra"
 }
 
-# נבנה key בטוח שלא מתחיל/נגמר ב-/ ותמיד כולל קובץ state
-# אם rel_path_norm ריק, נשתמש ב-environment בלבד
+
 remote_state {
   backend = "s3"
   config = {
     bucket         = "tf-state-${local.project}"
     key            = "${local.rel_path_norm != "" ? local.rel_path_norm : local.environment}/terraform.tfstate"
     region         = local.aws_region
-    dynamodb_table = "${local.project}-terraform-lock" # אפשרי להישאר למרות ה-Warning
+    dynamodb_table = "${local.project}-terraform-lock"
     encrypt        = true
-    # אפשר להוסיף כאן גם:
-    # s3_force_path_style        = true
-    # skip_credentials_validation = false
   }
 }
 

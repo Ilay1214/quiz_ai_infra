@@ -3,13 +3,14 @@ terragrunt {
 }
 include "root" {
     path = find_in_parent_folders()
+    expose = true
 }
 
 
 locals {
     env ="dev"
     tags = {
-     project = "project-circle-assistant"
+     project = "${include.root.locals.project}"
      environment = local.env
      
     }
@@ -18,6 +19,6 @@ locals {
 inputs = {
     vpc_cidr = "10.0.0.0/16"
     num_of_azs = 2
-    project_name = "project-circle-assistant"
-    environment = "dev"
+    project_name = "${include.root.locals.project}"
+    environment = local.env
 }

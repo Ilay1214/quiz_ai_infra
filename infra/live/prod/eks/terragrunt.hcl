@@ -42,7 +42,7 @@ inputs = {
     environment = local.env
 
     #node group settings for primary on-demand group:
-    instance_types = ["t3.large"]  # t3.large has 35 pods limit vs t3.medium's 17
+    instance_types = ["t3.large"]  
     min_size = 1
     max_size = 3
     desired_size = 1
@@ -52,7 +52,7 @@ inputs = {
     
     # Enable additional spot instance group for cost optimization
     enable_spot_group = true
-    spot_instance_types = ["t3.large", "t3a.large", "t3.xlarge"]
+    spot_instance_types = ["t3.large", "t3.medium"]
     spot_min_size = 0
     spot_max_size = 5
     spot_desired_size = 1

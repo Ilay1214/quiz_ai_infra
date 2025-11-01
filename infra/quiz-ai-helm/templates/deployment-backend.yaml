@@ -37,16 +37,16 @@ spec:
           ports:
             - name: http
               containerPort: {{ .Values.backend.containerPort | default 8000 }}
-          {{- with .Values.backend.env }}
-          env:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
           {{- with .Values.backend.envFromSecrets }}
           envFrom:
           {{- range . }}
             - secretRef:
                 name: {{ . }}
           {{- end }}
+          {{- end }}
+          {{- with .Values.backend.env }}
+          env:
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- if .Values.backend.livenessProbe.enabled }}
           livenessProbe:

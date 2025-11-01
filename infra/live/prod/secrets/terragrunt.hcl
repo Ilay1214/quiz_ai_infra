@@ -36,17 +36,17 @@ generate "provider_k8s" {
   }
 
   provider "kubernetes" {
-    host                   = "${dependency.eks.outputs.cluster_endpoint}"
-    cluster_ca_certificate = base64decode("${dependency.eks.outputs.cluster_certificate_authority_data}")
-    token                  = data.aws_eks_cluster_auth.this.token
+    host     = "${dependency.eks.outputs.cluster_endpoint}"
+    token    = data.aws_eks_cluster_auth.this.token
+    insecure = true
   }
 
   provider "helm" {
     kubernetes = {
-      host                   = "${dependency.eks.outputs.cluster_endpoint}"
-      cluster_ca_certificate = base64decode("${dependency.eks.outputs.cluster_certificate_authority_data}")
-      token                  = data.aws_eks_cluster_auth.this.token
-      load_config_file       = false
+      host             = "${dependency.eks.outputs.cluster_endpoint}"
+      token            = data.aws_eks_cluster_auth.this.token
+      insecure         = true
+      load_config_file = false
     }
   }
   EOF
@@ -55,6 +55,7 @@ generate "provider_k8s" {
 terraform { source = "${get_repo_root()}/infra/modules/eso-aws-config" }
 
 inputs = { 
+  enable_k8s                 = false  # Disable K8s resources when using mocks
   region                     = "eu-central-1"
   create_cluster_secret_store = true
   secret_store_name          = "aws-secrets-manager"

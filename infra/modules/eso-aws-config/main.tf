@@ -1,5 +1,5 @@
 resource "kubernetes_manifest" "cluster_secret_store" {
-  count = var.create_cluster_secret_store ? 1 : 0
+  count = (var.enable_k8s && var.create_cluster_secret_store) ? 1 : 0
 
   manifest = {
     apiVersion = "external-secrets.io/v1beta1"
@@ -28,7 +28,7 @@ resource "kubernetes_manifest" "cluster_secret_store" {
 
 
 resource "kubernetes_namespace_v1" "ns" {
-  for_each = var.namespaces
+  for_each = var.enable_k8s ? var.namespaces : {}
 
   metadata {
     name = each.value.name
@@ -36,7 +36,7 @@ resource "kubernetes_namespace_v1" "ns" {
 }
 
 resource "kubernetes_manifest" "app_env" {
-  for_each = var.namespaces
+  for_each = var.enable_k8s ? var.namespaces : {}
 
   manifest = {
     apiVersion = "external-secrets.io/v1beta1"
@@ -72,7 +72,7 @@ resource "kubernetes_manifest" "app_env" {
 }
 
 resource "kubernetes_manifest" "mysql_ca" {
-  for_each = var.namespaces
+  for_each = var.enable_k8s ? var.namespaces : {}
 
   manifest = {
     apiVersion = "external-secrets.io/v1beta1"

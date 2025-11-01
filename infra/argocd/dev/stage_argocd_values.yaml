@@ -7,7 +7,7 @@ spec:
     server: https://kubernetes.default.svc
     namespace: quiz-ai-staging
   source:
-    repoURL: https://github.com/Ilay1214/project_circle_assignment
+    repoURL: https://github.com/Ilay1214/quiz_ai_infra
     targetRevision: main
     path: infra/quiz-ai-helm
     helm:

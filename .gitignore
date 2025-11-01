@@ -33,3 +33,5 @@ infra/live/prod/k8s/argocd/.terragrunt-cache/
 infra/live/prod/k8s/argocd/.terraform.lock.hcl
 infra/live/prod/argocd/.terragrunt-cache/
 infra/live/prod/argocd/.terraform.lock.hcl
+infra/live/prod/k8s/apps/.terraform.lock.hcl
+infra/live/prod/k8s/apps/.terragrunt-cache/

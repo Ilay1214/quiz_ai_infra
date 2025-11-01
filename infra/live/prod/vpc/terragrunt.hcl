@@ -8,10 +8,11 @@ include "root" {
 locals {
     env     = include.root.locals.environment
     project = include.root.locals.project
+    cluster_name = "${local.env}-eks-cluster"
     tags = {
      project     = include.root.locals.project
      environment = local.env
-     
+
     }
 }
 
@@ -21,4 +22,5 @@ inputs = {
     environment = local.env
     common_tags = local.tags
     project_name = include.root.locals.project
+    cluster_name = local.cluster_name
 }

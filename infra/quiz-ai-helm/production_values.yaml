@@ -1,15 +1,10 @@
-#ingress values
+# ingress values - NGINX 
 ingress:
   enabled: true
-  name: api-gateway
-  className: alb
+  name: app-gateway
+  className: nginx    
   annotations:
-    kubernetes.io/ingress.class: alb
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
-    alb.ingress.kubernetes.io/healthcheck-path: /api/health
-    alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+    kubernetes.io/ingress.class: nginx
   rules:
     - paths:
         - path: /api
@@ -20,6 +15,7 @@ ingress:
           pathType: Prefix
           serviceSuffix: frontend
           servicePort: 80
+
 
 #backend values
 backend:
