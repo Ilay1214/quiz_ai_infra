@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: quiz-ai-prod
+  namespace: argocd  # ADD THIS LINE
+  annotations:       # ADD THIS SECTION
+    argocd.argoproj.io/sync-wave: "0"  # ADD THIS LINE
+spec:
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: quiz-ai-prod
+  source:
+    repoURL: https://github.com/Ilay1214/project_circle_assignment
+    targetRevision: main
+    path: infra/quiz-ai-helm
+    helm:
+      valueFiles:
+        - production_values.yaml
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ApplyOutOfSyncOnly=true
+      - CreateNamespace=true

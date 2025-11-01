@@ -1,0 +1,122 @@
+ingress:
+  enabled: false
+#backend values
+backend:
+  replicaCount: 1
+
+  image:
+    repository: ilay906/quiz-ai-backend
+    tag: latest
+    pullPolicy: Always
+
+  nameOverride: ""
+  fullnameOverride: ""
+
+  podAnnotations: {}
+  podLabels: {}
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+
+  service:
+    enabled: true
+    type: ClusterIP
+    port: 80
+    targetPort: 8000
+    annotations: {}
+
+  containerPort: 8000
+
+
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "256m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+  livenessProbe:
+    enabled: true
+    path: /api/health
+    portName: http
+    initialDelaySeconds: 20
+    periodSeconds: 10
+
+  readinessProbe:
+    enabled: true
+    path: /api/health
+    portName: http
+    initialDelaySeconds: 5
+    periodSeconds: 10
+
+  lifecycle:
+    preStopSleepSeconds: 10
+
+  imagePullSecrets: []   
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+  extraVolumeMounts: []
+  extraVolumes: []
+  
+
+
+
+frontend:
+  replicaCount: 0
+
+  image:
+    repository: ilay906/quiz-ai-frontend
+    tag: "latest"
+    pullPolicy: Always
+
+  containerPort: 80
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "256m"
+    limits:
+      memory: "256Mi"
+      cpu: "512m"
+
+  podLabels: {}
+  podAnnotations: {}
+  imagePullSecrets: []
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+  lifecycle:
+    preStopSleepSeconds: 10
+
+  livenessProbe:
+    enabled: false
+    path: /
+    initialDelaySeconds: 10
+    periodSeconds: 10
+
+  readinessProbe:
+    enabled: true
+    path: /
+    initialDelaySeconds: 5
+    periodSeconds: 10
+
+  service:
+    enabled: true
+    type: ClusterIP
+    port: 80
+    targetPort: 80
+    annotations: {}
+    labels: {}

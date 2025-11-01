@@ -1,0 +1,34 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ default (printf "%s-%s" (include "quiz-ai-helm.fullname" .) "ingress") .Values.ingress.name | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "quiz-ai-helm.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  rules:
+    - http:
+        paths:
+        {{- range $p := .Values.ingress.rules | default (list (dict "paths" (list))) }}
+        {{- range $pp := $p.paths }}
+          - path: {{ $pp.path | default "/" }}
+            pathType: {{ $pp.pathType | default "Prefix" }}
+            backend:
+              service:
+                name: {{ printf "%s-%s" (include "quiz-ai-helm.fullname" $) ($pp.serviceSuffix | default "application") | trunc 63 | trimSuffix "-" }}
+                port:
+                  number: {{ $pp.servicePort | default 80 }}
+        {{- end }}
+        {{- end }}
+  {{- with .Values.ingress.tls }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
