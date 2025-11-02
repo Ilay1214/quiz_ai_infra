@@ -36,6 +36,8 @@ backend:
   env:
     - name: MYSQL_SSL_CA
       value: /etc/mysql/ssl/ca.pem
+    - name: MYSQL_CA_PATH
+      value: /etc/mysql/ssl/ca.pem
 
   mysqlCaSecret:
     enabled: true

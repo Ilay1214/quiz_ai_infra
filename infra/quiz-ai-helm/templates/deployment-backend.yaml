@@ -30,6 +30,29 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      initContainers:
+        - name: fix-mysql-ca
+          image: busybox:1.35
+          command: ['sh', '-c']
+          args:
+            - |
+              if [ ! -z "$MYSQL_CA_CERT" ]; then
+                echo "$MYSQL_CA_CERT" | sed 's/-----BEGIN CERTIFICATE-----/&\n/g; s/-----END CERTIFICATE-----/\n&/g; s/\([A-Za-z0-9+\/]\{64\}\)/\1\n/g' > /mysql-ssl/ca.pem
+                echo "CA certificate written with proper line breaks"
+                cat /mysql-ssl/ca.pem | head -5
+              else
+                echo "Warning: MYSQL_CA_CERT not found in environment"
+              fi
+          {{- with .Values.backend.envFromSecrets }}
+          envFrom:
+          {{- range . }}
+            - secretRef:
+                name: {{ . }}
+          {{- end }}
+          {{- end }}
+          volumeMounts:
+            - name: mysql-ca-fixed
+              mountPath: /mysql-ssl
       containers:
         - name: application
           image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
