@@ -1,6 +1,6 @@
 # infra/live/prod/k8s/apps/terragrunt.hcl (עדכון)
 terraform {
-  source = "${get_repo_root()}/infra/modules/argocd"
+  source = "${get_repo_root()}/infra/modules/argocd-apps"
 }
 include "root" {
   path   = "${get_repo_root()}/infra/live/terragrunt.hcl"
@@ -38,10 +38,10 @@ provider "helm" {
 EOF
 }
 inputs = {
-  environment = include.root.locals.environment
-  enable_apps = true
-
   app_manifest_paths = [
+    # Root infrastructure app that manages AWS LBC and edge ingress
+    "${get_repo_root()}/infra/argocd/prod/root-infra-app.yaml",
+    
     # אפליקציית הפרוד (Application שמתקין את הצ'ארט שלך)
     "${get_repo_root()}/infra/argocd/prod/prod_argocd_values.yaml"
   ]
@@ -49,6 +49,7 @@ inputs = {
 
 dependencies {
   paths = [
+    "../argocd",
     "../ingress-nginx"
   ]
 }

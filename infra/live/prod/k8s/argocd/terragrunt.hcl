@@ -48,7 +48,7 @@ terraform {
 
 inputs = {
   environment        = local.env_sanitized
-  enable_apps        = true
-  app_manifest_path  = "${get_repo_root()}/infra/argocd/prod/root-infra-app.yaml"
+  enable_apps        = false  # Don't create apps here, just install ArgoCD
+  app_manifest_path  = ""
   app_manifest_paths = []
 }

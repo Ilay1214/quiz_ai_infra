@@ -69,7 +69,7 @@ terraform {
 
 inputs = {
   enable_k8s                 = true
-  create_crd_resources       = true  
+  create_crd_resources       = false  # Set to false first to install operator, then true
   manage_namespaces          = false
   irsa_role_arn              = dependency.eks.outputs.eso_irsa_role_arn
   create_cluster_secret_store = true
@@ -79,17 +79,13 @@ inputs = {
   secret_store_name          = "aws-secrets-manager"
   mysql_ca_property          = "MYSQL_SSL_CA"
 
-  # Controllers and edge Ingress
+  # Controllers and edge Ingress - all managed by ArgoCD now
   enable_ingress_nginx               = false
   enable_aws_load_balancer_controller = false
-  enable_edge_alb_to_nginx           = true
+  enable_edge_alb_to_nginx           = false  # Managed by ArgoCD
   create_alb_ingress_class           = false
   cluster_name                       = dependency.eks.outputs.cluster_name
   alb_controller_irsa_role_arn       = dependency.eks.outputs.alb_controller_irsa_role_arn
-
-  edge_ingress_annotations = {
-    "alb.ingress.kubernetes.io/subnets" = join(",", dependency.vpc.outputs.public_subnets)
-  }
 
   namespaces = {
     quiz-ai-prod = {
@@ -100,5 +96,5 @@ inputs = {
 }
 
 dependencies {
-  paths = ["../../eks","../../iam"]
+  paths = ["../../eks","../../iam","../../vpc"]
 }
