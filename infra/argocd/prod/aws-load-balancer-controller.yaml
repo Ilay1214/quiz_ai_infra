@@ -18,8 +18,10 @@ spec:
         region: eu-central-1
         vpcId: ""  # Will use subnet discovery instead
         serviceAccount:
-          create: false  # Use existing IRSA ServiceAccount
+          create: true  # Create ServiceAccount with IRSA annotation
           name: aws-load-balancer-controller
+          annotations:
+            eks.amazonaws.com/role-arn: arn:aws:iam::505825010815:role/prod-aws-lbc-irsa
         replicaCount: 2
         resources:
           requests:
