@@ -101,8 +101,8 @@ frontend:
 
   image:
     repository: ilay906/quiz-ai-frontend
-    tag: "1.0.1"
-    pullPolicy: IfNotPresent
+    tag: latest
+    pullPolicy: Always
 
   containerPort: 80
   
