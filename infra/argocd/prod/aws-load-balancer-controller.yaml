@@ -23,7 +23,7 @@ spec:
           create: true
           name: aws-load-balancer-controller
           annotations:
-            eks.amazonaws.com/role-arn: arn:aws:iam::637423653434:role/prod-aws-load-balancer-controller-irsa 
+            eks.amazonaws.com/role-arn: arn:aws:iam::505825010815:role/prod-aws-load-balancer-controller-irsa 
         replicaCount: 2
         resources:
           requests:
