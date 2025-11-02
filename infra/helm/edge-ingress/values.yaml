@@ -1,0 +1,25 @@
+ingress:
+  name: edge-to-nginx
+  namespace: ingress-nginx
+  ingressClassName: alb
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: "30"
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: "5"
+    alb.ingress.kubernetes.io/healthy-threshold-count: "2"
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: "2"
+    # Enable subnet autodiscovery via tags instead of hardcoding
+    # The controller will find subnets tagged with:
+    # - kubernetes.io/cluster/<cluster-name> = shared/owned
+    # - kubernetes.io/role/elb = 1 (for public subnets)
+  
+  backend:
+    serviceName: ingress-nginx-controller
+    servicePort: 80
+  
+  path: /
+  pathType: Prefix

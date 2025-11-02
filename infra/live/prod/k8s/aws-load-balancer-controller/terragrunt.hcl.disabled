@@ -1,3 +1,7 @@
+# DISABLED: AWS Load Balancer Controller is now managed by ArgoCD
+# This file has been disabled as the AWS LBC is now deployed via ArgoCD/Helm
+# See: infra/argocd/prod/aws-load-balancer-controller.yaml
+#
 # infra/live/prod/k8s/aws-load-balancer-controller/terragrunt.hcl
 include "root" {
   path   = "${get_repo_root()}/infra/live/terragrunt.hcl"

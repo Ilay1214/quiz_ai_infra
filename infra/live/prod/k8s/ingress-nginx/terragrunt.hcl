@@ -51,7 +51,6 @@ inputs = {
 
 dependencies {
   paths = [
-    "../aws-load-balancer-controller",
     "../../eks"
   ]
 }

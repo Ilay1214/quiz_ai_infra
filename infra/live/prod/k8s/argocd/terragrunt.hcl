@@ -42,9 +42,13 @@ provider "helm" {
 EOF
 }
 
+terraform {
+  source = "${get_repo_root()}/infra/modules/argocd"
+}
+
 inputs = {
   environment        = local.env_sanitized
-  enable_apps        = false
-  app_manifest_path  = ""
+  enable_apps        = true
+  app_manifest_path  = "${get_repo_root()}/infra/argocd/prod/root-infra-app.yaml"
   app_manifest_paths = []
 }

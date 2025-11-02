@@ -26,7 +26,7 @@ resource "helm_release" "argocd" {
 
 # יצירת Applications מתבצעת רק אם enable_apps=true
 resource "kubernetes_manifest" "app" {
-  for_each   = var.enable_apps ? toset(local.manifests) : []
+  for_each   = var.enable_apps ? toset(local.manifests) : toset([])
   manifest   = yamldecode(file(each.value))
   depends_on = [helm_release.argocd]
 }

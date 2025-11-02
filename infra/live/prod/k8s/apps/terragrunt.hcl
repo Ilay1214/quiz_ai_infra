@@ -43,17 +43,12 @@ inputs = {
 
   app_manifest_paths = [
     # אפליקציית הפרוד (Application שמתקין את הצ'ארט שלך)
-    "${get_repo_root()}/infra/argocd/prod/prod_argocd_values.yaml",
-
-
-    "${get_repo_root()}/infra/argocd/prod/bootstrap/edge-alb.yaml"
-
+    "${get_repo_root()}/infra/argocd/prod/prod_argocd_values.yaml"
   ]
 }
 
 dependencies {
   paths = [
-    "../aws-load-balancer-controller",
     "../ingress-nginx"
   ]
 }
