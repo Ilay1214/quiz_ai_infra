@@ -47,7 +47,10 @@ terraform {
 
 inputs = {
   namespace = "ingress-nginx"
+  enabled = false  # Disabled - NGINX Ingress now managed by ArgoCD
 }
+
+skip = true  # Skip this module entirely
 
 dependencies {
   paths = [

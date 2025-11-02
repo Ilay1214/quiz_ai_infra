@@ -68,11 +68,11 @@ terraform {
 }
 
 inputs = {
-  enable_k8s                 = true
-  create_crd_resources       = false  # Set to false first to install operator, then true
+  enable_k8s                 = false  # Disable - External Secrets now fully managed by ArgoCD
+  create_crd_resources       = false
   manage_namespaces          = false
   irsa_role_arn              = dependency.eks.outputs.eso_irsa_role_arn
-  create_cluster_secret_store = true
+  create_cluster_secret_store = false
   region                     = local.aws_region
   sa_name                    = "external-secrets"
   sa_namespace               = "external-secrets"
@@ -82,17 +82,12 @@ inputs = {
   # Controllers and edge Ingress - all managed by ArgoCD now
   enable_ingress_nginx               = false
   enable_aws_load_balancer_controller = false
-  enable_edge_alb_to_nginx           = false  # Managed by ArgoCD
+  enable_edge_alb_to_nginx           = false
   create_alb_ingress_class           = false
   cluster_name                       = dependency.eks.outputs.cluster_name
   alb_controller_irsa_role_arn       = dependency.eks.outputs.alb_controller_irsa_role_arn
 
-  namespaces = {
-    quiz-ai-prod = {
-      name       = "quiz-ai-prod"
-      remote_key = "prod/quiz-ai"
-    }
-  }
+  namespaces = {}  # Namespaces managed by ArgoCD
 }
 
 dependencies {
