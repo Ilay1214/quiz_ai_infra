@@ -30,6 +30,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.backend.mysqlCaSecret.enabled }}
       initContainers:
         - name: fix-mysql-ca
           image: busybox:1.35
@@ -53,6 +54,7 @@ spec:
           volumeMounts:
             - name: mysql-ca-fixed
               mountPath: /mysql-ssl
+      {{- end }}
       containers:
         - name: application
           image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
@@ -93,12 +95,14 @@ spec:
           {{- end }}
           {{- if .Values.backend.mysqlCaSecret.enabled }}
           volumeMounts:
-            - name: mysql-ca
+            - name: mysql-ca-fixed
               mountPath: {{ .Values.backend.mysqlCaSecret.mountPath | default "/etc/mysql/ssl" }}
               readOnly: true
           {{- end }}
       {{- if .Values.backend.mysqlCaSecret.enabled }}
       volumes:
+        - name: mysql-ca-fixed
+          emptyDir: {}
         - name: mysql-ca
           secret:
             secretName: {{ .Values.backend.mysqlCaSecret.name | default "mysql-ca" }}
