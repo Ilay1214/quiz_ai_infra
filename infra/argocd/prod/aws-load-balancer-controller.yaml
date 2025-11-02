@@ -18,12 +18,12 @@ spec:
       values: |
         clusterName: prod-eks-cluster
         region: eu-central-1
-        vpcId: ""  # Will use subnet discovery via tags
+        vpcId: "vpc-02b333e8399dbee05"
         serviceAccount:
           create: true
           name: aws-load-balancer-controller
           annotations:
-            eks.amazonaws.com/role-arn: 
+            eks.amazonaws.com/role-arn: arn:aws:iam::637423653434:role/prod-aws-load-balancer-controller-irsa 
         replicaCount: 2
         resources:
           requests:
