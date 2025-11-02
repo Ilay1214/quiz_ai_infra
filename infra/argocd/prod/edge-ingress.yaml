@@ -12,11 +12,9 @@ spec:
   source:
     repoURL: https://github.com/Ilay1214/quiz_ai_infra
     targetRevision: main
-    path: infra/helm/edge-ingress
-    helm:
-      releaseName: edge-ingress
-      valueFiles:
-        - values.yaml
+    path: infra/argocd/prod
+    directory:
+      include: edge-alb-ingress.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: ingress-nginx

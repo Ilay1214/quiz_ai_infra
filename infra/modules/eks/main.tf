@@ -138,3 +138,18 @@ module "alb_controller_irsa" {
     }
   }
 }
+
+# Pod Identity Associations
+resource "aws_eks_pod_identity_association" "external_secrets" {
+  cluster_name    = module.eks.cluster_name
+  namespace       = "external-secrets"
+  service_account = "external-secrets"
+  role_arn        = module.eso_irsa_role.iam_role_arn
+}
+
+resource "aws_eks_pod_identity_association" "aws_load_balancer_controller" {
+  cluster_name    = module.eks.cluster_name
+  namespace       = "kube-system"
+  service_account = "aws-load-balancer-controller"
+  role_arn        = module.alb_controller_irsa.iam_role_arn
+}

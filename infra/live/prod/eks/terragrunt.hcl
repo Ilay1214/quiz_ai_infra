@@ -6,6 +6,49 @@ include "root" {
   expose = true
 }
 
+generate "provider_k8s" {
+  path      = "provider_k8s.generated.tf"
+  if_exists = "overwrite_terragrunt"
+  contents  = <<EOF
+terraform {
+  required_providers {
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = ">= 2.25.0"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = ">= 2.11.0"
+    }
+  }
+}
+
+provider "kubernetes" {
+  host                   = try(module.eks.cluster_endpoint, "")
+  cluster_ca_certificate = try(base64decode(module.eks.cluster_certificate_authority_data), "")
+  
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "aws"
+    args = ["eks", "get-token", "--cluster-name", try(module.eks.cluster_name, "")]
+  }
+}
+
+provider "helm" {
+  kubernetes {
+    host                   = try(module.eks.cluster_endpoint, "")
+    cluster_ca_certificate = try(base64decode(module.eks.cluster_certificate_authority_data), "")
+    
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "aws"
+      args = ["eks", "get-token", "--cluster-name", try(module.eks.cluster_name, "")]
+    }
+  }
+}
+EOF
+}
+
 dependency "vpc" {
     config_path = "../vpc"
     mock_outputs = {

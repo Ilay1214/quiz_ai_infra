@@ -4,6 +4,7 @@ ingress:
   className: nginx
   annotations:
     kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
   rules:
     - paths:
         - path: /api
@@ -104,6 +105,14 @@ frontend:
     pullPolicy: IfNotPresent
 
   containerPort: 80
+  
+  env:
+    - name: REACT_APP_API_URL
+      value: "/api"
+    - name: VITE_API_URL
+      value: "/api"
+    - name: NEXT_PUBLIC_API_URL
+      value: "/api"
 
   strategy:
     type: RollingUpdate

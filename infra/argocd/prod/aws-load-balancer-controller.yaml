@@ -18,12 +18,11 @@ spec:
       values: |
         clusterName: prod-eks-cluster
         region: eu-central-1
-        vpcId: ""  # Will use subnet discovery instead
+        vpcId: ""  # Will use subnet discovery via tags
         serviceAccount:
-          create: true  # Create ServiceAccount with IRSA annotation
+          create: true
           name: aws-load-balancer-controller
-          annotations:
-            eks.amazonaws.com/role-arn: arn:aws:iam::505825010815:role/prod-aws-lbc-irsa
+          # No annotations needed - Pod Identity handles IAM role association
         replicaCount: 2
         resources:
           requests:

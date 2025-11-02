@@ -37,6 +37,8 @@ spec:
           podAnnotations:
             prometheus.io/scrape: "true"
             prometheus.io/port: "10254"
+          admissionWebhooks:
+            enabled: false  # Disable admission webhooks to avoid certificate issues
   destination:
     server: https://kubernetes.default.svc
     namespace: ingress-nginx
