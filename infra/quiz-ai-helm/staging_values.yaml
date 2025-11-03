@@ -28,7 +28,7 @@ backend:
   replicaCount: 1
 
   image:
-    repository: 505825010815.dkr.ecr.eu-central-1.amazonaws.com/quiz-ai-backend
+    repository: ilay906/quiz-ai-backend
     tag: latest
     pullPolicy: Always
 
@@ -108,7 +108,7 @@ frontend:
   replicaCount: 1
 
   image:
-    repository: 505825010815.dkr.ecr.eu-central-1.amazonaws.com/quiz-ai-frontend
+    repository: ilay906/quiz-ai-frontend
     tag: latest
     pullPolicy: Always
 

@@ -4,7 +4,7 @@ locals {
   )
 }
 
-# Only create ArgoCD Application resources, don't install ArgoCD itself
+# Only create ArgoCD Application 
 resource "kubernetes_manifest" "app" {
   for_each = toset(local.manifests)
   manifest = yamldecode(file(each.value))

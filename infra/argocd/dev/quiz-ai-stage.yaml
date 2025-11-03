@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: app-stage
+  name: quiz-ai-stage
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -24,7 +24,7 @@ spec:
         include: 'external-secrets-stage.yaml'
   destination:
     server: https://kubernetes.default.svc
-    namespace: app-stage
+    namespace: quiz-ai-stage
   syncPolicy:
     automated:
       prune: true
@@ -37,3 +37,9 @@ spec:
         duration: 5s
         factor: 2
         maxDuration: 3m
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: quiz-ai-stage
