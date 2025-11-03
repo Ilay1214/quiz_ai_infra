@@ -1,4 +1,4 @@
-# infra/live/prod/k8s/external-secrets/terragrunt.hcl
+
 include "root" {
   path   = "${get_repo_root()}/infra/live/terragrunt.hcl"
   expose = true
@@ -11,10 +11,10 @@ locals {
 dependency "eks" {
   config_path = "../../eks"
   mock_outputs = {
-    cluster_name                       = "mock-cluster"
-    cluster_endpoint                   = "https://mock-cluster-endpoint"
+    cluster_name  = "mock-cluster"
+    cluster_endpoint  = "https://mock-cluster-endpoint"
     cluster_certificate_authority_data = "bW9jay1jYS1kYXRh"
-    eso_irsa_role_arn                  = "arn:aws:iam::111122223333:role/mock-eso-irsa"
+    eso_irsa_role_arn = "arn:aws:iam::111122223333:role/mock-eso-irsa"
     alb_controller_irsa_role_arn       = "arn:aws:iam::111122223333:role/mock-alb-irsa"
   }
   mock_outputs_allowed_terraform_commands = ["validate","plan","init"]
@@ -69,7 +69,7 @@ terraform {
 
 inputs = {
   enable_k8s = false  # Disable - External Secrets now fully managed by ArgoCD
-  create_crd_resources = false
+  create_crd_resources = true
   manage_namespaces  = false
   irsa_role_arn  = dependency.eks.outputs.eso_irsa_role_arn
   create_cluster_secret_store = false

@@ -38,11 +38,15 @@ EOF
 }
 inputs = {
   app_manifest_paths = [
-    # Infrastructure components
-    "${get_repo_root()}/infra/argocd/dev/infrastructure.yaml",
-    # Dev application in app-dev namespace
+    # Wave 1: External Secrets Operator (installs CRDs)
+    "${get_repo_root()}/infra/argocd/dev/external-secrets-operator.yaml",
+    # Wave 2: NGINX Ingress Controller
+    "${get_repo_root()}/infra/argocd/dev/ingress-nginx.yaml",
+    # Wave 3: External Secrets Config (ClusterSecretStore)
+    "${get_repo_root()}/infra/argocd/dev/external-secrets-config.yaml",
+    # Wave 4: Dev application
     "${get_repo_root()}/infra/argocd/dev/quiz-ai-dev.yaml",
-    # Stage application in app-stage namespace
+    # Wave 4: Stage application
     "${get_repo_root()}/infra/argocd/dev/quiz-ai-stage.yaml"
   ]
 }
