@@ -1,4 +1,3 @@
-
 terraform {
   source = "${get_repo_root()}/infra/modules/argocd-apps"
 }
@@ -39,8 +38,12 @@ EOF
 }
 inputs = {
   app_manifest_paths = [
-    # App of Apps pattern - parent app manages all child applications
-    "${get_repo_root()}/infra/argocd/prod/argocd-prod-app.yaml"
+    # Infrastructure components
+    "${get_repo_root()}/infra/argocd/dev/infrastructure.yaml",
+    # Dev application in app-dev namespace
+    "${get_repo_root()}/infra/argocd/dev/quiz-ai-dev.yaml",
+    # Stage application in app-stage namespace
+    "${get_repo_root()}/infra/argocd/dev/quiz-ai-stage.yaml"
   ]
 }
 

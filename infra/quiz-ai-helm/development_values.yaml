@@ -1,16 +1,39 @@
+environment: development
+namespace: app-dev
+
 ingress:
-  enabled: false
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: ""  # Will use NLB hostname
+      paths:
+        - path: /api
+          pathType: Prefix
+          backend:
+            service:
+              name: quiz-ai-backend
+              port:
+                number: 80
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: quiz-ai-frontend
+              port:
+                number: 80
 #backend values
 backend:
   replicaCount: 1
 
   image:
-    repository: ilay906/quiz-ai-backend
+    repository: 505825010815.dkr.ecr.eu-central-1.amazonaws.com/quiz-ai-backend
     tag: latest
     pullPolicy: Always
 
-  nameOverride: ""
-  fullnameOverride: ""
+  nameOverride: "backend"
+  fullnameOverride: "quiz-ai-backend"
 
   podAnnotations: {}
   podLabels: {}
@@ -30,6 +53,21 @@ backend:
 
   containerPort: 8000
 
+  envFromSecrets:
+    - app-env  
+
+  env:
+    - name: MYSQL_SSL_CA
+      value: /etc/mysql/ssl/ca.pem
+    - name: MYSQL_CA_PATH
+      value: /etc/mysql/ssl/ca.pem
+
+  mysqlCaSecret:
+    enabled: true
+    name: mysql-ca
+    key: ca.pem
+    mountPath: /etc/mysql/ssl
+    mode: 256  
 
   resources:
     requests:
@@ -68,12 +106,15 @@ backend:
 
 
 frontend:
-  replicaCount: 0
+  replicaCount: 1
 
   image:
-    repository: ilay906/quiz-ai-frontend
-    tag: "latest"
+    repository: 505825010815.dkr.ecr.eu-central-1.amazonaws.com/quiz-ai-frontend
+    tag: latest
     pullPolicy: Always
+
+  nameOverride: "frontend"
+  fullnameOverride: "quiz-ai-frontend"
 
   containerPort: 80
 

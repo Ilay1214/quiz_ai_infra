@@ -14,19 +14,22 @@ spec:
   ingressClassName: {{ . }}
   {{- end }}
   rules:
-    - http:
+    {{- range .Values.ingress.hosts }}
+    - {{- if .host }}
+      host: {{ .host }}
+      {{- end }}
+      http:
         paths:
-        {{- range $p := .Values.ingress.rules | default (list (dict "paths" (list))) }}
-        {{- range $pp := $p.paths }}
-          - path: {{ $pp.path | default "/" }}
-            pathType: {{ $pp.pathType | default "Prefix" }}
+        {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ printf "%s-%s" (include "quiz-ai-helm.fullname" $) ($pp.serviceSuffix | default "application") | trunc 63 | trimSuffix "-" }}
+                name: {{ .backend.service.name }}
                 port:
-                  number: {{ $pp.servicePort | default 80 }}
+                  number: {{ .backend.service.port.number }}
         {{- end }}
-        {{- end }}
+    {{- end }}
   {{- with .Values.ingress.tls }}
   tls:
     {{- toYaml . | nindent 4 }}

@@ -8,7 +8,7 @@ Write-Host "Fetching infrastructure values from Terraform/Terragrunt..." -Foregr
 
 # Resolve repo paths
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$infraPath = Split-Path -Parent $scriptDir
+$infraPath = (Get-Item $scriptDir).Parent.Parent.FullName
 
 # --- VPC outputs ---
 Write-Host "Getting VPC outputs..." -ForegroundColor Cyan
@@ -90,24 +90,7 @@ function Substitute-Values {
 
 Write-Host "`nSubstituting values in YAML files..." -ForegroundColor Yellow
 
-# ArgoCD Application files
-$argocdFiles = @(
-    "..\argocd\prod\aws-load-balancer-controller.yaml",
-    "..\argocd\prod\external-secrets-operator.yaml",
-    "..\argocd\prod\ingress-nginx.yaml",
-    "..\argocd\prod\quiz-ai-prod.yaml",
-    "..\argocd\prod\external-secrets-config.yaml",
-    "..\argocd\prod\edge-ingress.yaml"
-)
 
-# Raw manifests (including your ALB ingress)
-$manifestFiles = @(
-    "..\manifests\edge-alb-ingress.yaml",
-    "..\manifests\cluster-secret-store.yaml",
-    "..\manifests\external-secrets.yaml"
-)
-
-$allFiles = $argocdFiles + $manifestFiles
 
 foreach ($rel in $allFiles) {
     $filePath = Join-Path $scriptDir $rel
