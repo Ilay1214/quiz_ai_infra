@@ -55,7 +55,7 @@ inputs = {
     "${get_repo_root()}/infra/argocd/prod/external-secrets-config.yaml",
     
     # Wave 6: Production Application
-    "${get_repo_root()}/infra/argocd/prod/prod_argocd_values.yaml"
+    "${get_repo_root()}/infra/argocd/prod/quiz-ai-prod.yaml"
   ]
 }
 

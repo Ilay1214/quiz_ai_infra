@@ -22,8 +22,8 @@ resource "aws_security_group" "karpenter_nodes" {
 }
 
 resource "aws_security_group" "alb" {
-  name        = "${var.project_name}-${var.environment}-alb-sg"
-  vpc_id      = module.vpc.vpc_id
+  name = "${var.project_name}-${var.environment}-alb-sg"
+  vpc_id = module.vpc.vpc_id
 
   ingress { 
     from_port = 80
@@ -47,11 +47,11 @@ resource "aws_security_group" "alb" {
 
 
 resource "aws_security_group_rule" "nodes_ingress_from_alb_nodeport" {
-  type                     = "ingress"
-  security_group_id        = aws_security_group.karpenter_nodes.id
-  from_port                = 30000
-  to_port                  = 32767
-  protocol                 = "tcp"
+  type = "ingress"
+  security_group_id = aws_security_group.karpenter_nodes.id
+  from_port = 30000
+  to_port = 32767
+  protocol = "tcp"
   source_security_group_id = aws_security_group.alb.id
-  description              = "ALB to NodePort on worker nodes"
+  description = "ALB to NodePort on worker nodes"
 }

@@ -18,7 +18,7 @@ spec:
       values: |
         controller:
           service:
-            type: ClusterIP  # Required for ALB target type IP
+            type: ClusterIP  
           publishService:
             enabled: true
           ingressClassResource:
@@ -38,7 +38,7 @@ spec:
             prometheus.io/scrape: "true"
             prometheus.io/port: "10254"
           admissionWebhooks:
-            enabled: false  # Disable admission webhooks to avoid certificate issues
+            enabled: false  
   destination:
     server: https://kubernetes.default.svc
     namespace: ingress-nginx

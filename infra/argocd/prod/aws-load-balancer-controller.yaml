@@ -18,7 +18,7 @@ spec:
       values: |
         clusterName: prod-eks-cluster
         region: eu-central-1
-        vpcId: "vpc-0e0a6acbd0af98c5e"
+        vpcId: vpc-03807fe482b48ccc3
         serviceAccount:
           create: true
           name: aws-load-balancer-controller
