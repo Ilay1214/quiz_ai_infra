@@ -55,14 +55,14 @@ dependency "vpc" {
         vpc_id  = "vpc-000000"
         private_subnets = ["subnet-0000001", "subnet-0000002"]
     }
-    mock_outputs_allowed_terraform_commands = ["validate", "plan","init"]
+    mock_outputs_allowed_terraform_commands = ["validate", "plan", "init", "destroy"]
 }
 dependency "iam" {
     config_path = "../iam"
     mock_outputs = {
         eso_policy_arn = "arn:aws:iam::111122223333:policy/mock-eso"
     }
-    mock_outputs_allowed_terraform_commands = ["validate", "plan","init"]
+    mock_outputs_allowed_terraform_commands = ["validate", "plan", "init", "destroy"]
 }
 
 locals {

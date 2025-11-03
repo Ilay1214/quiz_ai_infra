@@ -90,7 +90,22 @@ function Substitute-Values {
 
 Write-Host "`nSubstituting values in YAML files..." -ForegroundColor Yellow
 
-
+# Define all files that need substitution
+$allFiles = @(
+    # ArgoCD application files
+    "..\..\argocd\prod\external-secrets-operator.yaml",
+    "..\..\argocd\prod\external-secrets-config.yaml",
+    "..\..\argocd\prod\aws-load-balancer-controller.yaml",
+    "..\..\argocd\prod\ingress-nginx.yaml",
+    "..\..\argocd\prod\edge-ingress.yaml",
+    "..\..\argocd\prod\quiz-ai-prod.yaml",
+    
+    # Manifests files
+    "..\..\manifests\prod\cluster-secret-store.yaml",
+    "..\..\manifests\prod\external-secrets.yaml",
+    "..\..\manifests\prod\edge-alb-ingress.yaml",
+    "..\..\manifests\prod\quiz-ai-namespace.yaml"
+)
 
 foreach ($rel in $allFiles) {
     $filePath = Join-Path $scriptDir $rel
@@ -101,8 +116,15 @@ Write-Host "`nSubstitution completed successfully!" -ForegroundColor Green
 Write-Host "You can now apply/sync your ArgoCD applications." -ForegroundColor Green
 
 # Optional: quick sanity check for ALB subnets on the rendered Ingress file(s)
-$edgeFile = Join-Path $scriptDir "..\manifests\edge-alb-ingress.yaml"
+$edgeFile = Join-Path $scriptDir "..\..\manifests\prod\edge-alb-ingress.yaml"
 if (Test-Path $edgeFile) {
     Write-Host "`nPreview of subnets annotation in edge-alb-ingress.yaml:" -ForegroundColor DarkCyan
     (Get-Content $edgeFile -Raw) -split "`n" | Where-Object { $_ -match 'alb\.ingress\.kubernetes\.io/subnets' } | ForEach-Object { Write-Host "  $_" }
+}
+
+# Also show ESO IRSA role substitution
+$esoFile = Join-Path $scriptDir "..\..\argocd\prod\external-secrets-operator.yaml"
+if (Test-Path $esoFile) {
+    Write-Host "`nPreview of IRSA annotation in external-secrets-operator.yaml:" -ForegroundColor DarkCyan
+    (Get-Content $esoFile -Raw) -split "`n" | Where-Object { $_ -match 'eks\.amazonaws\.com/role-arn' } | ForEach-Object { Write-Host "  $_" }
 }

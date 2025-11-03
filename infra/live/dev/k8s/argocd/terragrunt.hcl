@@ -13,6 +13,12 @@ locals {
 dependency "eks" {
   config_path  = "../../eks"   
   skip_outputs = false
+  mock_outputs = {
+    cluster_name = "mock-cluster"
+    cluster_endpoint = "https://mock-cluster-endpoint"
+    cluster_certificate_authority_data = "bW9jay1jYS1kYXRh"
+  }
+  mock_outputs_allowed_terraform_commands = ["validate", "plan", "init", "destroy"]
 }
 
 generate "provider_k8s" {

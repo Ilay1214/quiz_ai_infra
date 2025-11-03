@@ -10,7 +10,7 @@ dependency "eks" {
     cluster_endpoint = "https://mock-cluster-endpoint"
     cluster_certificate_authority_data = "bW9jay1jYS1kYXRh"
   }
-  mock_outputs_allowed_terraform_commands = ["validate", "plan","init"]
+  mock_outputs_allowed_terraform_commands = ["validate", "plan", "init", "destroy"]
 }
 
 

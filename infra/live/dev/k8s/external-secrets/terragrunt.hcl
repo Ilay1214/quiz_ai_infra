@@ -17,7 +17,7 @@ dependency "eks" {
     eso_irsa_role_arn = "arn:aws:iam::111122223333:role/mock-eso-irsa"
     alb_controller_irsa_role_arn       = "arn:aws:iam::111122223333:role/mock-alb-irsa"
   }
-  mock_outputs_allowed_terraform_commands = ["validate","plan","init"]
+  mock_outputs_allowed_terraform_commands = ["validate", "plan", "init", "destroy"]
 }
 
 dependency "iam" {
@@ -25,7 +25,7 @@ dependency "iam" {
   mock_outputs = {
     eso_policy_arn = "arn:aws:iam::111122223333:policy/mock-eso"
   }
-  mock_outputs_allowed_terraform_commands = ["validate","plan","init"]
+  mock_outputs_allowed_terraform_commands = ["validate", "plan", "init", "destroy"]
 }
 
 dependency "vpc" {
@@ -34,7 +34,7 @@ dependency "vpc" {
     vpc_id         = "vpc-000000"
     public_subnets = ["subnet-aaa","subnet-bbb","subnet-ccc"]
   }
-  mock_outputs_allowed_terraform_commands = ["validate","plan","init"]
+  mock_outputs_allowed_terraform_commands = ["validate", "plan", "init", "destroy"]
 }
 
 
@@ -68,7 +68,7 @@ terraform {
 }
 
 inputs = {
-  enable_k8s = false  # Disable - External Secrets now fully managed by ArgoCD
+  enable_k8s = false 
   create_crd_resources = true
   manage_namespaces  = false
   irsa_role_arn  = dependency.eks.outputs.eso_irsa_role_arn
@@ -81,7 +81,7 @@ inputs = {
 
 
 
-  namespaces = {}  # Namespaces managed by ArgoCD
+  namespaces = {}  
 }
 
 dependencies {

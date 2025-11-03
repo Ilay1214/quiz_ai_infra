@@ -1,5 +1,5 @@
 #!/bin/bash
-# substitute-values.sh - Prod Environment
+# substitute-values.sh - Dev Environment
 # Fetch infra outputs with Terragrunt and substitute into ArgoCD/manifests files.
 
 set -e
@@ -12,12 +12,12 @@ INFRA_PATH="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 # --- VPC outputs ---
 echo -e "\033[36mGetting VPC outputs...\033[0m"
-cd "${INFRA_PATH}/live/prod/vpc"
+cd "${INFRA_PATH}/live/dev/vpc"
 
 # Basic IDs
 VPC_ID=$(terragrunt output -raw vpc_id 2>/dev/null | tail -1)
 
-# Public subnets → CSV without spaces and wrapped in quotes (for ALB annotation)
+# Public subnets → CSV without spaces and wrapped in quotes (for NLB annotation if needed)
 PUBLIC_SUBNET_IDS_JSON=$(terragrunt output -json public_subnets 2>/dev/null)
 PUBLIC_SUBNET_IDS_NO_SPACES=$(echo "$PUBLIC_SUBNET_IDS_JSON" | jq -r '. | join(",")')
 PUBLIC_SUBNET_IDS_YAML="\"${PUBLIC_SUBNET_IDS_NO_SPACES}\""
@@ -29,11 +29,10 @@ PRIVATE_SUBNET_IDS_YAML="\"${PRIVATE_SUBNET_IDS_NO_SPACES}\""
 
 # --- EKS outputs ---
 echo -e "\033[36mGetting EKS outputs...\033[0m"
-cd "${INFRA_PATH}/live/prod/eks"
+cd "${INFRA_PATH}/live/dev/eks"
 
 CLUSTER_NAME=$(terragrunt output -raw cluster_name 2>/dev/null | tail -1)
 ESO_IRSA_ROLE_ARN=$(terragrunt output -raw eso_irsa_role_arn 2>/dev/null | tail -1)
-ALB_CONTROLLER_IRSA_ROLE_ARN=$(terragrunt output -raw alb_controller_irsa_role_arn 2>/dev/null | tail -1)
 CLUSTER_AUTOSCALER_IRSA_ROLE_ARN=$(terragrunt output -raw cluster_autoscaler_irsa_role_arn 2>/dev/null | tail -1)
 OIDC_ISSUER=$(terragrunt output -raw cluster_oidc_issuer_url 2>/dev/null | tail -1)
 
@@ -52,7 +51,6 @@ echo "  AWS_ACCOUNT_ID: ${AWS_ACCOUNT_ID}"
 echo "  PUBLIC_SUBNET_IDS: ${PUBLIC_SUBNET_IDS_YAML}"
 echo "  PRIVATE_SUBNET_IDS: ${PRIVATE_SUBNET_IDS_YAML}"
 echo "  ESO_IRSA_ROLE_ARN: ${ESO_IRSA_ROLE_ARN}"
-echo "  ALB_CONTROLLER_IRSA_ROLE_ARN: ${ALB_CONTROLLER_IRSA_ROLE_ARN}"
 echo "  CLUSTER_AUTOSCALER_IRSA_ROLE_ARN: ${CLUSTER_AUTOSCALER_IRSA_ROLE_ARN}"
 echo "  OIDC_ISSUER: ${OIDC_ISSUER}"
 
@@ -80,7 +78,6 @@ substitute_values() {
     sed -i "s|\${PUBLIC_SUBNET_IDS}|${PUBLIC_SUBNET_IDS_YAML}|g" "$tmp_file"
     sed -i "s|\${PRIVATE_SUBNET_IDS}|${PRIVATE_SUBNET_IDS_YAML}|g" "$tmp_file"
     sed -i "s|\${ESO_IRSA_ROLE_ARN}|${ESO_IRSA_ROLE_ARN}|g" "$tmp_file"
-    sed -i "s|\${ALB_CONTROLLER_IRSA_ROLE_ARN}|${ALB_CONTROLLER_IRSA_ROLE_ARN}|g" "$tmp_file"
     sed -i "s|\${CLUSTER_AUTOSCALER_IRSA_ROLE_ARN}|${CLUSTER_AUTOSCALER_IRSA_ROLE_ARN}|g" "$tmp_file"
     sed -i "s|\${OIDC_ISSUER}|${OIDC_ISSUER}|g" "$tmp_file"
     
@@ -93,18 +90,16 @@ echo -e "\n\033[33mSubstituting values in YAML files...\033[0m"
 # Define all files that need substitution
 ALL_FILES=(
     # ArgoCD application files
-    "../../argocd/prod/external-secrets-operator.yaml"
-    "../../argocd/prod/external-secrets-config.yaml"
-    "../../argocd/prod/aws-load-balancer-controller.yaml"
-    "../../argocd/prod/ingress-nginx.yaml"
-    "../../argocd/prod/edge-ingress.yaml"
-    "../../argocd/prod/quiz-ai-prod.yaml"
+    "../../argocd/dev/external-secrets-operator.yaml"
+    "../../argocd/dev/external-secrets-config.yaml"
+    "../../argocd/dev/ingress-nginx.yaml"
+    "../../argocd/dev/quiz-ai-dev.yaml"
+    "../../argocd/dev/quiz-ai-stage.yaml"
     
     # Manifests files
-    "../../manifests/prod/cluster-secret-store.yaml"
-    "../../manifests/prod/external-secrets.yaml"
-    "../../manifests/prod/edge-alb-ingress.yaml"
-    "../../manifests/prod/quiz-ai-namespace.yaml"
+    "../../manifests/dev/cluster-secret-store.yaml"
+    "../../manifests/dev/external-secrets-dev.yaml"
+    "../../manifests/dev/external-secrets-stage.yaml"
 )
 
 for rel_path in "${ALL_FILES[@]}"; do
@@ -115,17 +110,8 @@ done
 echo -e "\n\033[32mSubstitution completed successfully!\033[0m"
 echo -e "\033[32mYou can now apply/sync your ArgoCD applications.\033[0m"
 
-# Optional: quick sanity check for ALB subnets on the rendered Ingress file(s)
-EDGE_FILE="${SCRIPT_DIR}/../../manifests/prod/edge-alb-ingress.yaml"
-if [ -f "$EDGE_FILE" ]; then
-    echo -e "\n\033[96mPreview of subnets annotation in edge-alb-ingress.yaml:\033[0m"
-    grep "alb.ingress.kubernetes.io/subnets" "$EDGE_FILE" | while read -r line; do
-        echo "  $line"
-    done
-fi
-
-# Also show ESO IRSA role substitution
-ESO_FILE="${SCRIPT_DIR}/../../argocd/prod/external-secrets-operator.yaml"
+# Optional: quick sanity check on a sample substituted file
+ESO_FILE="${SCRIPT_DIR}/../../argocd/dev/external-secrets-operator.yaml"
 if [ -f "$ESO_FILE" ]; then
     echo -e "\n\033[96mPreview of IRSA annotation in external-secrets-operator.yaml:\033[0m"
     grep "eks.amazonaws.com/role-arn" "$ESO_FILE" | while read -r line; do

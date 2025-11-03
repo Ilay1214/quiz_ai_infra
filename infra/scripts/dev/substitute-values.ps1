@@ -33,7 +33,7 @@ Set-Location "$infraPath\live\dev\eks"
 
 $CLUSTER_NAME = (terragrunt output -raw cluster_name 2>$null | Select-Object -Last 1)
 $ESO_IRSA_ROLE_ARN = (terragrunt output -raw eso_irsa_role_arn 2>$null | Select-Object -Last 1)
-$ALB_CONTROLLER_IRSA_ROLE_ARN = (terragrunt output -raw alb_controller_irsa_role_arn 2>$null | Select-Object -Last 1)
+
 $CLUSTER_AUTOSCALER_IRSA_ROLE_ARN = (terragrunt output -raw cluster_autoscaler_irsa_role_arn 2>$null | Select-Object -Last 1)
 $OIDC_ISSUER = (terragrunt output -raw cluster_oidc_issuer_url 2>$null | Select-Object -Last 1)
 
@@ -52,7 +52,6 @@ Write-Host "  AWS_ACCOUNT_ID: $AWS_ACCOUNT_ID"
 Write-Host "  PUBLIC_SUBNET_IDS: $PUBLIC_SUBNET_IDS_YAML"
 Write-Host "  PRIVATE_SUBNET_IDS: $PRIVATE_SUBNET_IDS_YAML"
 Write-Host "  ESO_IRSA_ROLE_ARN: $ESO_IRSA_ROLE_ARN"
-Write-Host "  ALB_CONTROLLER_IRSA_ROLE_ARN: $ALB_CONTROLLER_IRSA_ROLE_ARN"
 Write-Host "  CLUSTER_AUTOSCALER_IRSA_ROLE_ARN: $CLUSTER_AUTOSCALER_IRSA_ROLE_ARN"
 Write-Host "  OIDC_ISSUER: $OIDC_ISSUER"
 
@@ -81,7 +80,6 @@ function Substitute-Values {
     $content = $content.Replace('${PRIVATE_SUBNET_IDS}', $PRIVATE_SUBNET_IDS_YAML)
 
     $content = $content.Replace('${ESO_IRSA_ROLE_ARN}', $ESO_IRSA_ROLE_ARN)
-    $content = $content.Replace('${ALB_CONTROLLER_IRSA_ROLE_ARN}', $ALB_CONTROLLER_IRSA_ROLE_ARN)
     $content = $content.Replace('${CLUSTER_AUTOSCALER_IRSA_ROLE_ARN}', $CLUSTER_AUTOSCALER_IRSA_ROLE_ARN)
     $content = $content.Replace('${OIDC_ISSUER}', $OIDC_ISSUER)
 
@@ -90,18 +88,22 @@ function Substitute-Values {
 
 Write-Host "`nSubstituting values in YAML files..." -ForegroundColor Yellow
 
-# ArgoCD Application files
-$argocdFiles = @(
-    "..\argocd\dev\aws-load-balancer-controller.yaml",
-    "..\argocd\dev\external-secrets-operator.yaml",
-    "..\argocd\dev\ingress-nginx.yaml",
-    "..\argocd\dev\quiz-ai-dev.yaml",
-    "..\argocd\dev\quiz-ai-stage.yaml",
-    "..\argocd\dev\argocd-dev-app.yaml"
+# Define all files that need substitution
+$allFiles = @(
+    # ArgoCD application files
+    "..\..\argocd\dev\external-secrets-operator.yaml",
+    "..\..\argocd\dev\external-secrets-config.yaml",
+    "..\..\argocd\dev\ingress-nginx.yaml",
+    "..\..\argocd\dev\quiz-ai-dev.yaml",
+    "..\..\argocd\dev\quiz-ai-stage.yaml",
+    
+    # Manifests files
+    "..\..\manifests\dev\cluster-secret-store.yaml",
+    "..\..\manifests\dev\external-secrets-dev.yaml",
+    "..\..\manifests\dev\external-secrets-stage.yaml"
 )
 
-
-foreach ($rel in $argocdFiles) {
+foreach ($rel in $allFiles) {
     $filePath = Join-Path $scriptDir $rel
     Substitute-Values -FilePath $filePath
 }
@@ -109,9 +111,9 @@ foreach ($rel in $argocdFiles) {
 Write-Host "`nSubstitution completed successfully!" -ForegroundColor Green
 Write-Host "You can now apply/sync your ArgoCD applications." -ForegroundColor Green
 
-# Optional: quick sanity check for ALB subnets on the rendered Ingress file(s)
-$edgeFile = Join-Path $scriptDir "..\argocd\dev\edge-alb-ingress.yaml"
-if (Test-Path $edgeFile) {
-    Write-Host "`nPreview of subnets annotation in edge-alb-ingress.yaml:" -ForegroundColor DarkCyan
-    (Get-Content $edgeFile -Raw) -split "`n" | Where-Object { $_ -match 'alb\.ingress\.kubernetes\.io/subnets' } | ForEach-Object { Write-Host "  $_" }
+# Optional: quick sanity check on a sample substituted file
+$sampleFile = Join-Path $scriptDir "..\..\argocd\dev\external-secrets-operator.yaml"
+if (Test-Path $sampleFile) {
+    Write-Host "`nPreview of IRSA annotation in external-secrets-operator.yaml:" -ForegroundColor DarkCyan
+    (Get-Content $sampleFile -Raw) -split "`n" | Where-Object { $_ -match 'eks\.amazonaws\.com/role-arn' } | ForEach-Object { Write-Host "  $_" }
 }
