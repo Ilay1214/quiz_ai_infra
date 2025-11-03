@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: https://github.com/Ilay1214/quiz_ai_infra
     targetRevision: main
-    path: infra/argocd/prod
+    path: infra/manifests
     directory:
       include: edge-alb-ingress.yaml
   destination:
@@ -24,3 +24,10 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=false  # ingress-nginx namespace should already exist
+      - ServerSideApply=true
+    retry:
+      limit: 10
+      backoff:
+        duration: 15s
+        factor: 2
+        maxDuration: 5m

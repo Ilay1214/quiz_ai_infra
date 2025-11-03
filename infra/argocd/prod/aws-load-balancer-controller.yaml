@@ -18,7 +18,7 @@ spec:
       values: |
         clusterName: prod-eks-cluster
         region: eu-central-1
-        vpcId: "vpc-02b333e8399dbee05"
+        vpcId: "vpc-0e0a6acbd0af98c5e"
         serviceAccount:
           create: true
           name: aws-load-balancer-controller
@@ -34,6 +34,8 @@ spec:
         enableWaf: false
         enableWafv2: false
         defaultTargetType: ip
+        createIngressClassResource: true
+        ingressClass: alb
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-system
@@ -43,3 +45,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=false  # kube-system already exists
+      - ServerSideApply=true  # Use server-side apply for CRDs
