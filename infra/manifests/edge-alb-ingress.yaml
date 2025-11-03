@@ -14,8 +14,7 @@ metadata:
     alb.ingress.kubernetes.io/healthcheck-timeout-seconds: "5"
     alb.ingress.kubernetes.io/healthy-threshold-count: "2"
     alb.ingress.kubernetes.io/unhealthy-threshold-count: "2"
-    alb.ingress.kubernetes.io/subnets: subnet-050a85fdf0cfebb4d, subnet-0e649084e038bfa79, subnet-0be7e8fd44ae2c316
-spec:
+    alb.ingress.kubernetes.io/subnets: ${PUBLIC_SUBNET_IDS}  
   ingressClassName: alb
   rules:
     - http:

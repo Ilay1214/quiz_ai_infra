@@ -4,7 +4,7 @@ metadata:
   name: edge-ingress
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "4"  # After NGINX Ingress Controller
+    argocd.argoproj.io/sync-wave: "4"  
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -23,7 +23,7 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=false  # ingress-nginx namespace should already exist
+      - CreateNamespace=false  
       - ServerSideApply=true
     retry:
       limit: 10
