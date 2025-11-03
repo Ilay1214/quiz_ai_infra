@@ -95,7 +95,7 @@ backend:
   
 
 
-
+# frontend values
 frontend:
   replicaCount: 1
 

@@ -1,10 +1,10 @@
-apiVersion: argoproj.io/v1alpha1
+﻿apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: ingress-nginx
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "3"  # After AWS LBC
+    argocd.argoproj.io/sync-wave: "3"  
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -14,7 +14,7 @@ spec:
     chart: ingress-nginx
     targetRevision: 4.8.3
     helm:
-      releaseName: ingress-nginx
+      releaseName: ingress-nginx  
       values: |
         controller:
           service:

@@ -1,3 +1,7 @@
+locals {
+  env_sanitized = join("", regexall("[0-9A-Za-z+=,.@-]", var.environment))
+}
+
 resource "aws_iam_openid_connect_provider" "github" {
     url = "https://token.actions.githubusercontent.com" 
     client_id_list = ["sts.amazonaws.com"] 

@@ -36,16 +36,16 @@ generate "provider_k8s" {
   }
 
   provider "kubernetes" {
-    host     = "${dependency.eks.outputs.cluster_endpoint}"
-    token    = data.aws_eks_cluster_auth.this.token
+    host = "${dependency.eks.outputs.cluster_endpoint}"
+    token = data.aws_eks_cluster_auth.this.token
     insecure = true
   }
 
   provider "helm" {
     kubernetes = {
-      host             = "${dependency.eks.outputs.cluster_endpoint}"
-      token            = data.aws_eks_cluster_auth.this.token
-      insecure         = true
+      host = "${dependency.eks.outputs.cluster_endpoint}"
+      token = data.aws_eks_cluster_auth.this.token
+      insecure = true
       load_config_file = false
     }
   }
@@ -55,16 +55,16 @@ generate "provider_k8s" {
 terraform { source = "${get_repo_root()}/infra/modules/eso-aws-config" }
 
 inputs = { 
-  enable_k8s                 = false  # Disable K8s resources when using mocks
-  region                     = "eu-central-1"
+  enable_k8s  = false 
+  region  = "eu-central-1"
   create_cluster_secret_store = true
-  secret_store_name          = "aws-secrets-manager"
-  sa_name                    = "external-secrets"
-  sa_namespace               = "external-secrets"
-  mysql_ca_property          = "MYSQL_CA_CERT"
+  secret_store_name = "aws-secrets-manager"
+  sa_name  = "external-secrets"
+  sa_namespace = "external-secrets"
+  mysql_ca_property  = "MYSQL_CA_CERT"
   namespaces = { 
     prod = { 
-      name       = "quiz-ai-prod"
+      name = "quiz-ai-prod"
       remote_key = "prod/quiz-ai"
     } 
   } 

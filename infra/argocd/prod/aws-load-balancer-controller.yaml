@@ -1,10 +1,10 @@
-apiVersion: argoproj.io/v1alpha1
+﻿apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: aws-load-balancer-controller
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "2"  # After External Secrets CRDs
+    argocd.argoproj.io/sync-wave: "2"  
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -16,14 +16,14 @@ spec:
     helm:
       releaseName: aws-load-balancer-controller
       values: |
-        clusterName: ${CLUSTER_NAME}
-        region: ${AWS_REGION}
-        vpcId: ${VPC_ID}
+        clusterName: prod-eks-cluster
+        region: eu-central-1
+        vpcId: vpc-03807fe482b48ccc3
         serviceAccount:
           create: true
           name: aws-load-balancer-controller
           annotations:
-            eks.amazonaws.com/role-arn: ${ALB_CONTROLLER_IRSA_ROLE_ARN} 
+            eks.amazonaws.com/role-arn: arn:aws:iam::505825010815:role/prod-aws-load-balancer-controller-irsa 
         replicaCount: 2
         resources:
           requests:
@@ -44,5 +44,5 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=false  # kube-system already exists
-      - ServerSideApply=true  # Use server-side apply for CRDs
+      - CreateNamespace=false  
+      - ServerSideApply=true  

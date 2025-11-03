@@ -7,6 +7,3 @@ variable "environment" {
 variable "github_repo" {
     type = string
 }
-locals {
-  env_sanitized = join("", regexall("[0-9A-Za-z+=,.@-]", var.environment))
-}

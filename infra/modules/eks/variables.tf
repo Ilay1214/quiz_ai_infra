@@ -39,31 +39,29 @@ variable "kubernetes_version" {
 }
 
 variable "enable_spot_group" {
-    type        = bool
-    default     = false
-    description = "Enable additional spot instance node group"
+    type = bool
+    default = false
+
 }
 
 variable "spot_instance_types" {
-    type        = list(string)
-    default     = null
-    description = "Instance types for spot node group"
+    type = list(string)
+    default = null
+
 }
 
 variable "spot_min_size" {
-    type        = number
-    default     = null
-    description = "Minimum size for spot node group"
+    type = number
+    default = null
+
 }
 
 variable "spot_max_size" {
-    type        = number
-    default     = null
-    description = "Maximum size for spot node group"
+    type = number
+    default = null
 }
 
 variable "spot_desired_size" {
-    type        = number
-    default     = null
-    description = "Desired size for spot node group"
+    type = number
+    default = null
 }

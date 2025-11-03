@@ -24,7 +24,7 @@ terraform {
 }
 
 provider "kubernetes" {
-  host                   = try(module.eks.cluster_endpoint, "")
+  host  = try(module.eks.cluster_endpoint, "")
   cluster_ca_certificate = try(base64decode(module.eks.cluster_certificate_authority_data), "")
   
   exec {
@@ -36,12 +36,12 @@ provider "kubernetes" {
 
 provider "helm" {
   kubernetes {
-    host                   = try(module.eks.cluster_endpoint, "")
+    host  = try(module.eks.cluster_endpoint, "")
     cluster_ca_certificate = try(base64decode(module.eks.cluster_certificate_authority_data), "")
     
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
-      command     = "aws"
+      command  = "aws"
       args = ["eks", "get-token", "--cluster-name", try(module.eks.cluster_name, "")]
     }
   }
@@ -52,7 +52,7 @@ EOF
 dependency "vpc" {
     config_path = "../vpc"
     mock_outputs = {
-        vpc_id          = "vpc-000000"
+        vpc_id  = "vpc-000000"
         private_subnets = ["subnet-0000001", "subnet-0000002"]
     }
     mock_outputs_allowed_terraform_commands = ["validate", "plan","init"]

@@ -2,15 +2,15 @@ terraform {
     source = "${get_parent_terragrunt_dir()}/../modules/vpc"
 }
 include "root" {
-  path   = "${get_repo_root()}/infra/live/terragrunt.hcl"
+  path = "${get_repo_root()}/infra/live/terragrunt.hcl"
   expose = true
 }
 locals {
-    env     = include.root.locals.environment
+    env = include.root.locals.environment
     project = include.root.locals.project
     cluster_name = "${local.env}-eks-cluster"
     tags = {
-     project     = include.root.locals.project
+     project = include.root.locals.project
      environment = local.env
 
     }

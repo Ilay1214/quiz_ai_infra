@@ -14,10 +14,10 @@ module "ecr" {
         rulePriority = 1,
         description  = "Keep last 30 images",
         selection = {
-          tagStatus     = "tagged",
+          tagStatus = "tagged",
           tagPrefixList = ["v"],
           countType  = "imageCountMoreThan",
-          countNumber   = 30
+          countNumber = 30
         },
         action = {
           type = "expire"

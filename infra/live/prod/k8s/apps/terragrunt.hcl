@@ -1,4 +1,4 @@
-# infra/live/prod/k8s/apps/terragrunt.hcl (עדכון)
+
 terraform {
   source = "${get_repo_root()}/infra/modules/argocd-apps"
 }
@@ -22,17 +22,17 @@ data "aws_eks_cluster_auth" "this" {
 }
 
 provider "kubernetes" {
-  host                   = "${dependency.eks.outputs.cluster_endpoint}"
+  host  = "${dependency.eks.outputs.cluster_endpoint}"
   cluster_ca_certificate = base64decode("${dependency.eks.outputs.cluster_certificate_authority_data}")
-  token                  = data.aws_eks_cluster_auth.this.token
+  token = data.aws_eks_cluster_auth.this.token
 }
 
 provider "helm" {
   kubernetes = {
-    host                   = "${dependency.eks.outputs.cluster_endpoint}"
+    host = "${dependency.eks.outputs.cluster_endpoint}"
     cluster_ca_certificate = base64decode("${dependency.eks.outputs.cluster_certificate_authority_data}")
-    token                  = data.aws_eks_cluster_auth.this.token
-    load_config_file       = false
+    token   = data.aws_eks_cluster_auth.this.token
+    load_config_file  = false
   }
 }
 EOF
@@ -62,6 +62,5 @@ inputs = {
 dependencies {
   paths = [
     "../argocd"
-    # ingress-nginx removed - now managed by ArgoCD
   ]
 }

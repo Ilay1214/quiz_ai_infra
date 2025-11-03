@@ -1,4 +1,4 @@
-apiVersion: argoproj.io/v1alpha1
+﻿apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: edge-ingress
@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: https://github.com/Ilay1214/quiz_ai_infra
     targetRevision: main
-    path: infra/manifests
+    path: infra/manifests/prod
     directory:
       include: edge-alb-ingress.yaml
   destination:

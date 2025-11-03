@@ -6,7 +6,7 @@ include "root" {
 
 locals {
   raw_environment = try(include.root.locals.environment, "prod")
-  environment     = (local.raw_environment == "" || local.raw_environment == "/") ? "prod" : local.raw_environment
+  environment = (local.raw_environment == "" || local.raw_environment == "/") ? "prod" : local.raw_environment
   env_sanitized = replace(replace(replace(local.environment, " ", "-"), "/", "-"), "\\", "-")
 }
 
@@ -26,17 +26,17 @@ data "aws_eks_cluster_auth" "this" {
 }
 
 provider "kubernetes" {
-  host                   = "${dependency.eks.outputs.cluster_endpoint}"
+  host = "${dependency.eks.outputs.cluster_endpoint}"
   cluster_ca_certificate = base64decode("${dependency.eks.outputs.cluster_certificate_authority_data}")
-  token                  = data.aws_eks_cluster_auth.this.token
+  token  = data.aws_eks_cluster_auth.this.token
 }
 
 provider "helm" {
   kubernetes = {
-    host                   = "${dependency.eks.outputs.cluster_endpoint}"
+    host = "${dependency.eks.outputs.cluster_endpoint}"
     cluster_ca_certificate = base64decode("${dependency.eks.outputs.cluster_certificate_authority_data}")
-    token                  = data.aws_eks_cluster_auth.this.token
-    load_config_file       = false
+    token  = data.aws_eks_cluster_auth.this.token
+    load_config_file  = false
   }
 }
 EOF
@@ -47,8 +47,8 @@ terraform {
 }
 
 inputs = {
-  environment        = local.env_sanitized
-  enable_apps        = false  # Don't create apps here, just install ArgoCD
+  environment = local.env_sanitized
+  enable_apps  = false  # Don't create apps here, just install ArgoCD
   app_manifest_path  = ""
   app_manifest_paths = []
 }
