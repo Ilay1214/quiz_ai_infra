@@ -70,16 +70,30 @@ substitute_values() {
     # Perform literal replacements (no regex)
     cp "$file_path" "$tmp_file"
     
-    # Use sed with literal string replacement
-    sed -i "s|\${VPC_ID}|${VPC_ID}|g" "$tmp_file"
-    sed -i "s|\${CLUSTER_NAME}|${CLUSTER_NAME}|g" "$tmp_file"
-    sed -i "s|\${AWS_REGION}|${AWS_REGION}|g" "$tmp_file"
-    sed -i "s|\${AWS_ACCOUNT_ID}|${AWS_ACCOUNT_ID}|g" "$tmp_file"
-    sed -i "s|\${PUBLIC_SUBNET_IDS}|${PUBLIC_SUBNET_IDS_YAML}|g" "$tmp_file"
-    sed -i "s|\${PRIVATE_SUBNET_IDS}|${PRIVATE_SUBNET_IDS_YAML}|g" "$tmp_file"
-    sed -i "s|\${ESO_IRSA_ROLE_ARN}|${ESO_IRSA_ROLE_ARN}|g" "$tmp_file"
-    sed -i "s|\${CLUSTER_AUTOSCALER_IRSA_ROLE_ARN}|${CLUSTER_AUTOSCALER_IRSA_ROLE_ARN}|g" "$tmp_file"
-    sed -i "s|\${OIDC_ISSUER}|${OIDC_ISSUER}|g" "$tmp_file"
+    # Detect if we're on macOS (BSD sed) or Linux (GNU sed)
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS/BSD sed requires backup extension
+        sed -i '' "s|\${VPC_ID}|${VPC_ID}|g" "$tmp_file"
+        sed -i '' "s|\${CLUSTER_NAME}|${CLUSTER_NAME}|g" "$tmp_file"
+        sed -i '' "s|\${AWS_REGION}|${AWS_REGION}|g" "$tmp_file"
+        sed -i '' "s|\${AWS_ACCOUNT_ID}|${AWS_ACCOUNT_ID}|g" "$tmp_file"
+        sed -i '' "s|\${PUBLIC_SUBNET_IDS}|${PUBLIC_SUBNET_IDS_YAML}|g" "$tmp_file"
+        sed -i '' "s|\${PRIVATE_SUBNET_IDS}|${PRIVATE_SUBNET_IDS_YAML}|g" "$tmp_file"
+        sed -i '' "s|\${ESO_IRSA_ROLE_ARN}|${ESO_IRSA_ROLE_ARN}|g" "$tmp_file"
+        sed -i '' "s|\${CLUSTER_AUTOSCALER_IRSA_ROLE_ARN}|${CLUSTER_AUTOSCALER_IRSA_ROLE_ARN}|g" "$tmp_file"
+        sed -i '' "s|\${OIDC_ISSUER}|${OIDC_ISSUER}|g" "$tmp_file"
+    else
+        # Linux/GNU sed
+        sed -i "s|\${VPC_ID}|${VPC_ID}|g" "$tmp_file"
+        sed -i "s|\${CLUSTER_NAME}|${CLUSTER_NAME}|g" "$tmp_file"
+        sed -i "s|\${AWS_REGION}|${AWS_REGION}|g" "$tmp_file"
+        sed -i "s|\${AWS_ACCOUNT_ID}|${AWS_ACCOUNT_ID}|g" "$tmp_file"
+        sed -i "s|\${PUBLIC_SUBNET_IDS}|${PUBLIC_SUBNET_IDS_YAML}|g" "$tmp_file"
+        sed -i "s|\${PRIVATE_SUBNET_IDS}|${PRIVATE_SUBNET_IDS_YAML}|g" "$tmp_file"
+        sed -i "s|\${ESO_IRSA_ROLE_ARN}|${ESO_IRSA_ROLE_ARN}|g" "$tmp_file"
+        sed -i "s|\${CLUSTER_AUTOSCALER_IRSA_ROLE_ARN}|${CLUSTER_AUTOSCALER_IRSA_ROLE_ARN}|g" "$tmp_file"
+        sed -i "s|\${OIDC_ISSUER}|${OIDC_ISSUER}|g" "$tmp_file"
+    fi
     
     # Move the temp file back
     mv "$tmp_file" "$file_path"

@@ -28,7 +28,7 @@ spec:
             enabled: true
             name: nginx
             controllerValue: k8s.io/ingress-nginx
-            default: true  # Make it default for dev
+            default: true  
           resources:
             requests:
               cpu: 50m
@@ -36,7 +36,7 @@ spec:
             limits:
               cpu: 200m
               memory: 256Mi
-          replicaCount: 1  # Single replica for dev
+          replicaCount: 1  
           podAnnotations:
             prometheus.io/scrape: "true"
             prometheus.io/port: "10254"

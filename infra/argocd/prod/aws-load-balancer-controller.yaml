@@ -1,4 +1,4 @@
-﻿apiVersion: argoproj.io/v1alpha1
+apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: aws-load-balancer-controller
@@ -14,14 +14,14 @@ spec:
     helm:
       releaseName: aws-load-balancer-controller
       values: |
-        clusterName: prod-eks-cluster
-        region: eu-central-1
-        vpcId: vpc-03807fe482b48ccc3
+        clusterName: ${CLUSTER_NAME}
+        region: ${AWS_REGION}
+        vpcId: ${VPC_ID}
         serviceAccount:
           create: true
           name: aws-load-balancer-controller
           annotations:
-            eks.amazonaws.com/role-arn: arn:aws:iam::505825010815:role/prod-aws-load-balancer-controller-irsa 
+            eks.amazonaws.com/role-arn: ${ALB_CONTROLLER_IRSA_ROLE_ARN} 
         replicaCount: 2
         resources:
           requests:

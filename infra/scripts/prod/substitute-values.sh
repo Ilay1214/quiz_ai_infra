@@ -18,13 +18,49 @@ cd "${INFRA_PATH}/live/prod/vpc"
 VPC_ID=$(terragrunt output -raw vpc_id 2>/dev/null | tail -1)
 
 # Public subnets → CSV without spaces and wrapped in quotes (for ALB annotation)
-PUBLIC_SUBNET_IDS_JSON=$(terragrunt output -json public_subnets 2>/dev/null)
+echo "DEBUG: Fetching PUBLIC_SUBNET_IDS..."
+# Don't hide errors - capture them
+PUBLIC_SUBNET_IDS_JSON=$(terragrunt output -json public_subnets 2>&1)
+if [ $? -ne 0 ]; then
+    echo -e "\033[31mERROR: Failed to get public_subnets from terragrunt output\033[0m"
+    echo "Output was: $PUBLIC_SUBNET_IDS_JSON"
+    echo "Make sure you have run 'terragrunt apply' in prod/vpc directory first"
+    exit 1
+fi
+
+# Remove any warning messages that might be at the beginning
+PUBLIC_SUBNET_IDS_JSON=$(echo "$PUBLIC_SUBNET_IDS_JSON" | tail -1)
+echo "DEBUG: PUBLIC_SUBNET_IDS_JSON = '$PUBLIC_SUBNET_IDS_JSON'"
+
+# Check if it's valid JSON
+if ! echo "$PUBLIC_SUBNET_IDS_JSON" | jq empty 2>/dev/null; then
+    echo -e "\033[31mERROR: public_subnets output is not valid JSON\033[0m"
+    echo "Got: $PUBLIC_SUBNET_IDS_JSON"
+    exit 1
+fi
+
 PUBLIC_SUBNET_IDS_NO_SPACES=$(echo "$PUBLIC_SUBNET_IDS_JSON" | jq -r '. | join(",")')
+if [ -z "$PUBLIC_SUBNET_IDS_NO_SPACES" ] || [ "$PUBLIC_SUBNET_IDS_NO_SPACES" == "null" ]; then
+    echo -e "\033[31mERROR: Failed to parse public subnet IDs\033[0m"
+    exit 1
+fi
+echo "DEBUG: PUBLIC_SUBNET_IDS_NO_SPACES = '$PUBLIC_SUBNET_IDS_NO_SPACES'"
 PUBLIC_SUBNET_IDS_YAML="\"${PUBLIC_SUBNET_IDS_NO_SPACES}\""
+echo "DEBUG: PUBLIC_SUBNET_IDS_YAML = '$PUBLIC_SUBNET_IDS_YAML'"
 
 # Private subnets → same treatment
-PRIVATE_SUBNET_IDS_JSON=$(terragrunt output -json private_subnets 2>/dev/null)
+PRIVATE_SUBNET_IDS_JSON=$(terragrunt output -json private_subnets 2>&1)
+if [ $? -ne 0 ]; then
+    echo -e "\033[31mERROR: Failed to get private_subnets from terragrunt output\033[0m"
+    echo "Output was: $PRIVATE_SUBNET_IDS_JSON"
+    exit 1
+fi
+PRIVATE_SUBNET_IDS_JSON=$(echo "$PRIVATE_SUBNET_IDS_JSON" | tail -1)
 PRIVATE_SUBNET_IDS_NO_SPACES=$(echo "$PRIVATE_SUBNET_IDS_JSON" | jq -r '. | join(",")')
+if [ -z "$PRIVATE_SUBNET_IDS_NO_SPACES" ] || [ "$PRIVATE_SUBNET_IDS_NO_SPACES" == "null" ]; then
+    echo -e "\033[31mERROR: Failed to parse private subnet IDs\033[0m"
+    exit 1
+fi
 PRIVATE_SUBNET_IDS_YAML="\"${PRIVATE_SUBNET_IDS_NO_SPACES}\""
 
 # --- EKS outputs ---
@@ -72,17 +108,32 @@ substitute_values() {
     # Perform literal replacements (no regex)
     cp "$file_path" "$tmp_file"
     
-    # Use sed with literal string replacement
-    sed -i "s|\${VPC_ID}|${VPC_ID}|g" "$tmp_file"
-    sed -i "s|\${CLUSTER_NAME}|${CLUSTER_NAME}|g" "$tmp_file"
-    sed -i "s|\${AWS_REGION}|${AWS_REGION}|g" "$tmp_file"
-    sed -i "s|\${AWS_ACCOUNT_ID}|${AWS_ACCOUNT_ID}|g" "$tmp_file"
-    sed -i "s|\${PUBLIC_SUBNET_IDS}|${PUBLIC_SUBNET_IDS_YAML}|g" "$tmp_file"
-    sed -i "s|\${PRIVATE_SUBNET_IDS}|${PRIVATE_SUBNET_IDS_YAML}|g" "$tmp_file"
-    sed -i "s|\${ESO_IRSA_ROLE_ARN}|${ESO_IRSA_ROLE_ARN}|g" "$tmp_file"
-    sed -i "s|\${ALB_CONTROLLER_IRSA_ROLE_ARN}|${ALB_CONTROLLER_IRSA_ROLE_ARN}|g" "$tmp_file"
-    sed -i "s|\${CLUSTER_AUTOSCALER_IRSA_ROLE_ARN}|${CLUSTER_AUTOSCALER_IRSA_ROLE_ARN}|g" "$tmp_file"
-    sed -i "s|\${OIDC_ISSUER}|${OIDC_ISSUER}|g" "$tmp_file"
+    # Detect if we're on macOS (BSD sed) or Linux (GNU sed)
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS/BSD sed requires backup extension
+        sed -i '' "s|\${VPC_ID}|${VPC_ID}|g" "$tmp_file"
+        sed -i '' "s|\${CLUSTER_NAME}|${CLUSTER_NAME}|g" "$tmp_file"
+        sed -i '' "s|\${AWS_REGION}|${AWS_REGION}|g" "$tmp_file"
+        sed -i '' "s|\${AWS_ACCOUNT_ID}|${AWS_ACCOUNT_ID}|g" "$tmp_file"
+        sed -i '' "s|\${PUBLIC_SUBNET_IDS}|${PUBLIC_SUBNET_IDS_YAML}|g" "$tmp_file"
+        sed -i '' "s|\${PRIVATE_SUBNET_IDS}|${PRIVATE_SUBNET_IDS_YAML}|g" "$tmp_file"
+        sed -i '' "s|\${ESO_IRSA_ROLE_ARN}|${ESO_IRSA_ROLE_ARN}|g" "$tmp_file"
+        sed -i '' "s|\${ALB_CONTROLLER_IRSA_ROLE_ARN}|${ALB_CONTROLLER_IRSA_ROLE_ARN}|g" "$tmp_file"
+        sed -i '' "s|\${CLUSTER_AUTOSCALER_IRSA_ROLE_ARN}|${CLUSTER_AUTOSCALER_IRSA_ROLE_ARN}|g" "$tmp_file"
+        sed -i '' "s|\${OIDC_ISSUER}|${OIDC_ISSUER}|g" "$tmp_file"
+    else
+        # Linux/GNU sed
+        sed -i "s|\${VPC_ID}|${VPC_ID}|g" "$tmp_file"
+        sed -i "s|\${CLUSTER_NAME}|${CLUSTER_NAME}|g" "$tmp_file"
+        sed -i "s|\${AWS_REGION}|${AWS_REGION}|g" "$tmp_file"
+        sed -i "s|\${AWS_ACCOUNT_ID}|${AWS_ACCOUNT_ID}|g" "$tmp_file"
+        sed -i "s|\${PUBLIC_SUBNET_IDS}|${PUBLIC_SUBNET_IDS_YAML}|g" "$tmp_file"
+        sed -i "s|\${PRIVATE_SUBNET_IDS}|${PRIVATE_SUBNET_IDS_YAML}|g" "$tmp_file"
+        sed -i "s|\${ESO_IRSA_ROLE_ARN}|${ESO_IRSA_ROLE_ARN}|g" "$tmp_file"
+        sed -i "s|\${ALB_CONTROLLER_IRSA_ROLE_ARN}|${ALB_CONTROLLER_IRSA_ROLE_ARN}|g" "$tmp_file"
+        sed -i "s|\${CLUSTER_AUTOSCALER_IRSA_ROLE_ARN}|${CLUSTER_AUTOSCALER_IRSA_ROLE_ARN}|g" "$tmp_file"
+        sed -i "s|\${OIDC_ISSUER}|${OIDC_ISSUER}|g" "$tmp_file"
+    fi
     
     # Move the temp file back
     mv "$tmp_file" "$file_path"
