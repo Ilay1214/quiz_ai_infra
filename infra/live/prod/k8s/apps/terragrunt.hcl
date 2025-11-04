@@ -39,23 +39,8 @@ EOF
 }
 inputs = {
   app_manifest_paths = [
-    # Wave 1: External Secrets Operator (with CRDs)
-    "${get_repo_root()}/infra/argocd/prod/external-secrets-operator.yaml",
-    
-    # Wave 2: AWS Load Balancer Controller
-    "${get_repo_root()}/infra/argocd/prod/aws-load-balancer-controller.yaml",
-    
-    # Wave 3: NGINX Ingress Controller
-    "${get_repo_root()}/infra/argocd/prod/ingress-nginx.yaml",
-    
-    # Wave 4: Edge Ingress (ALB -> NGINX)
-    "${get_repo_root()}/infra/argocd/prod/edge-ingress.yaml",
-    
-    # Wave 5: External Secrets Configuration
-    "${get_repo_root()}/infra/argocd/prod/external-secrets-config.yaml",
-    
-    # Wave 6: Production Application
-    "${get_repo_root()}/infra/argocd/prod/quiz-ai-prod.yaml"
+    # App of Apps pattern - parent app manages all child applications
+    "${get_repo_root()}/infra/argocd/prod/argocd-prod-app.yaml"
   ]
 }
 

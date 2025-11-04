@@ -35,3 +35,15 @@ infra/live/prod/argocd/.terragrunt-cache/
 infra/live/prod/argocd/.terraform.lock.hcl
 infra/live/prod/k8s/apps/.terraform.lock.hcl
 infra/live/prod/k8s/apps/.terragrunt-cache/
+infra/live/prod/k8s/argocd-app/.terragrunt-cache/
+infra/live/prod/k8s/argocd-app/.terraform.lock.hcl
+infra/live/prod/k8s/argocd-app/argocd-creds.txt
+infra/live/dev/k8s/*/.terragrunt-cache/
+infra/live/dev/k8s/*/.terraform.lock.hcl
+infra/live/dev/k8s/.terragrunt-cache/
+infra/live/dev/k8s/.terraform.lock.hcl
+infra/live/dev/argocd/.terragrunt-cache/
+infra/live/dev/argocd/.terraform.lock.hcl
+infra/live/dev/secrets/.terragrunt-cache/
+infra/live/dev/secrets/.terraform.lock.hcl
+

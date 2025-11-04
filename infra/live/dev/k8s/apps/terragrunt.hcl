@@ -1,18 +1,14 @@
-# infra/live/prod/k8s/argocd/terragrunt.hcl
+terraform {
+  source = "${get_repo_root()}/infra/modules/argocd-apps"
+}
 include "root" {
   path   = "${get_repo_root()}/infra/live/terragrunt.hcl"
   expose = true
 }
 
-locals {
-  raw_environment = try(include.root.locals.environment, "dev")
-  environment = (local.raw_environment == "" || local.raw_environment == "/") ? "dev" : local.raw_environment
-  env_sanitized = replace(replace(replace(local.environment, " ", "-"), "/", "-"), "\\", "-")
-}
 
 dependency "eks" {
-  config_path  = "../eks"   
-  skip_outputs = false
+  config_path = "../../eks"
   mock_outputs = {
     cluster_name = "mock-cluster"
     cluster_endpoint = "https://mock-cluster-endpoint"
@@ -26,35 +22,43 @@ generate "provider_k8s" {
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
 
-
 data "aws_eks_cluster_auth" "this" {
   name = "${dependency.eks.outputs.cluster_name}"
 }
 
 provider "kubernetes" {
-  host = "${dependency.eks.outputs.cluster_endpoint}"
+  host  = "${dependency.eks.outputs.cluster_endpoint}"
   cluster_ca_certificate = base64decode("${dependency.eks.outputs.cluster_certificate_authority_data}")
-  token  = data.aws_eks_cluster_auth.this.token
+  token = data.aws_eks_cluster_auth.this.token
 }
 
 provider "helm" {
   kubernetes = {
     host = "${dependency.eks.outputs.cluster_endpoint}"
     cluster_ca_certificate = base64decode("${dependency.eks.outputs.cluster_certificate_authority_data}")
-    token  = data.aws_eks_cluster_auth.this.token
+    token   = data.aws_eks_cluster_auth.this.token
     load_config_file  = false
   }
 }
 EOF
 }
-
-terraform {
-  source = "${get_repo_root()}/infra/modules/argocd"
+inputs = {
+  app_manifest_paths = [
+    # Wave 1: External Secrets Operator (installs CRDs)
+    "${get_repo_root()}/infra/argocd/dev/external-secrets-operator.yaml",
+    # Wave 2: NGINX Ingress Controller
+    "${get_repo_root()}/infra/argocd/dev/ingress-nginx.yaml",
+    # Wave 3: External Secrets Config (ClusterSecretStore)
+    "${get_repo_root()}/infra/argocd/dev/external-secrets-config.yaml",
+    # Wave 4: Dev application
+    "${get_repo_root()}/infra/argocd/dev/quiz-ai-dev.yaml",
+    # Wave 4: Stage application
+    "${get_repo_root()}/infra/argocd/dev/quiz-ai-stage.yaml"
+  ]
 }
 
-inputs = {
-  environment = local.env_sanitized
-  enable_apps  = false  # Don't create apps here, just install ArgoCD
-  app_manifest_path  = ""
-  app_manifest_paths = []
+dependencies {
+  paths = [
+    "../argocd"
+  ]
 }
