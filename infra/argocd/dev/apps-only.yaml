@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: prod-apps
+  name: dev-apps
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -10,10 +10,15 @@ spec:
   source:
     repoURL: https://github.com/Ilay1214/quiz_ai_infra
     targetRevision: main
-    path: infra/argocd/prod
+    path: infra/argocd/dev
     directory:
-      include: '*.yaml'
-      exclude: 'app-of-apps.yaml'  # Don't include itself
+      include: |
+        quiz-ai-dev.yaml
+        quiz-ai-stage.yaml
+        ingress-nginx.yaml
+      exclude: |
+        external-secrets-operator.yaml
+        external-secrets-config.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
@@ -22,4 +27,11 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
+      - CreateNamespace=false
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 3m

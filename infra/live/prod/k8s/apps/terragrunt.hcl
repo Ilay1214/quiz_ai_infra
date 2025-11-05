@@ -39,8 +39,8 @@ EOF
 }
 inputs = {
   app_manifest_paths = [
-    # App of Apps pattern - parent app manages all child applications
-    "${get_repo_root()}/infra/argocd/prod/argocd-prod-app.yaml"
+    # Apps-only configuration - excludes Terraform-managed infrastructure
+    "${get_repo_root()}/infra/argocd/prod/apps-only.yaml"
   ]
 }
 

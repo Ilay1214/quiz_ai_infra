@@ -1,5 +1,5 @@
 terraform {
-    source = "${get_repo_root()}/infra/modules/iam"
+    source = "${get_repo_root()}/infra/modules/IAM"
 }
 
 include "root" {

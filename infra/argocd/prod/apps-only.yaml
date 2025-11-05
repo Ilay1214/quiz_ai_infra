@@ -1,10 +1,8 @@
-﻿apiVersion: argoproj.io/v1alpha1
+apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: external-secrets-config
+  name: prod-apps
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "5"  
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -12,23 +10,28 @@ spec:
   source:
     repoURL: https://github.com/Ilay1214/quiz_ai_infra
     targetRevision: main
-    path: infra/manifests/prod
+    path: infra/argocd/prod
     directory:
-      include: '{quiz-ai-namespace.yaml,cluster-secret-store.yaml,external-secrets.yaml}'
+      include: |
+        quiz-ai-prod.yaml
+        ingress-nginx.yaml
+      exclude: |
+        external-secrets-operator.yaml
+        aws-load-balancer-controller.yaml
+        external-secrets-config.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: '*'  
+    namespace: argocd
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+      - ServerSideApply=true
     retry:
-      limit: 10
+      limit: 5
       backoff:
         duration: 10s
         factor: 2
-        maxDuration: 5m
-    syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true  
-      - Validate=false  
+        maxDuration: 3m
