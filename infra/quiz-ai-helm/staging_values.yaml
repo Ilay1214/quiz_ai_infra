@@ -1,5 +1,5 @@
 environment: staging
-namespace: app-stage
+namespace: quiz-ai-stage
 
 ingress:
   enabled: true

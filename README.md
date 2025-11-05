@@ -1,8 +1,10 @@
-# Quiz AI Infrastructure - GitOps Kubernetes Platform
+# Quiz AI Infrastructure - AWS EKS Platform
 
-## 📋 Overview
+## 📋 Project Overview
 
-This repository contains the complete infrastructure-as-code (IaC) implementation for deploying the Quiz AI application on AWS EKS using Terragrunt, Terraform, and ArgoCD. It implements a GitOps workflow with multi-environment support, automated secret management, and progressive deployment strategies.
+**Quiz AI** is an interactive educational platform that helps users learn through AI-powered quizzes. This repository contains the complete infrastructure-as-code (IaC) implementation for deploying the Quiz AI application on AWS EKS.
+
+The infrastructure leverages **Terragrunt** for DRY infrastructure management, **ArgoCD** for GitOps-based continuous delivery, and **External Secrets Operator** for secure secret management. The platform supports both development and production environments with different optimization strategies.
 
 ## 🏗️ Architecture
 
@@ -15,23 +17,34 @@ This repository contains the complete infrastructure-as-code (IaC) implementatio
 - **IAM/IRSA**: Fine-grained AWS permissions for Kubernetes workloads
 
 ### Traffic Flow
+
+**Production Environment:**
 ```
-Internet → AWS ALB/NLB → NGINX Ingress Controller → Application Services → Pods
-                                ↓
-                    External Secrets Operator → AWS Secrets Manager
+Internet → AWS ALB → NGINX Ingress Controller → Application Services → Pods
+                            ↓
+            External Secrets Operator → AWS Secrets Manager
+```
+
+**Development Environment:**
+```
+Internet → AWS NLB → NGINX Ingress Controller → Application Services → Pods
+                            ↓
+            External Secrets Operator → AWS Secrets Manager
 ```
 
 ## 🚀 Features
 
-- **Multi-Environment Support**: Separate EKS clusters for dev and prod environments
-- **GitOps with ArgoCD**: Automated application deployment with sync waves
-- **Dual Ingress Strategy**: 
-  - Production: ALB → NGINX for advanced routing
-  - Dev: Direct NLB → NGINX for cost optimization
-- **Secret Management**: External Secrets Operator with AWS Secrets Manager integration
-- **Infrastructure as Code**: Complete infrastructure managed with Terragrunt/Terraform
-- **IRSA Authentication**: Secure AWS service access without storing credentials
-- **Helm Charts**: Reusable application charts with environment-specific values
+- **Multi-Environment Support**: Separate EKS clusters with optimized configurations
+  - **Production**: High availability with ALB → NGINX ingress chain
+  - **Development**: Cost-optimized with NLB and minimal resources
+- **GitOps with ArgoCD**: Automated deployments with proper sync waves
+- **Hybrid Management Model**: 
+  - Infrastructure components managed by Terragrunt
+  - Applications deployed via ArgoCD
+- **Unified Secret Management**: Both environments use same secrets from AWS Secrets Manager
+- **Docker Hub Integration**: Development uses public images, no ECR required
+- **IRSA Authentication**: Pod-level AWS permissions without storing credentials
+- **Multiple Apps in Dev**: Supports both dev and staging apps in single cluster
 
 ## 📁 Repository Structure
 
@@ -40,39 +53,39 @@ quiz_ai_infra/
 ├── infra/
 │   ├── argocd/                     # ArgoCD application manifests
 │   │   ├── dev/                     # Dev environment apps
-│   │   │   ├── external-secrets-operator.yaml
-│   │   │   ├── external-secrets-config.yaml
-│   │   │   ├── ingress-nginx.yaml
-│   │   │   ├── quiz-ai-dev.yaml
-│   │   │   └── quiz-ai-stage.yaml
+│   │   │   ├── apps-only.yaml       # Parent app for dev applications
+│   │   │   ├── ingress-nginx.yaml   # NLB ingress (Wave 1)
+│   │   │   ├── quiz-ai-dev.yaml     # Dev app (Wave 2)
+│   │   │   └── quiz-ai-stage.yaml   # Stage app (Wave 2)
 │   │   └── prod/                    # Prod environment apps
-│   │       ├── external-secrets-operator.yaml
-│   │       ├── aws-load-balancer-controller.yaml
-│   │       ├── ingress-nginx.yaml
-│   │       ├── edge-ingress.yaml
-│   │       ├── external-secrets-config.yaml
-│   │       └── quiz-ai-prod.yaml
+│   │       ├── apps-only.yaml       # Parent app for prod applications
+│   │       ├── ingress-nginx.yaml   # ClusterIP NGINX (Wave 1)
+│   │       ├── edge-ingress.yaml    # ALB configuration (Wave 2)
+│   │       └── quiz-ai-prod.yaml    # Production app (Wave 3)
 │   ├── live/                        # Terragrunt live configurations
 │   │   ├── terragrunt.hcl           # Root configuration
 │   │   ├── dev/                     # Dev environment
 │   │   │   ├── vpc/                 # Network setup (10.1.0.0/16)
 │   │   │   ├── iam/                 # IAM roles and policies
-│   │   │   ├── eks/                 # EKS cluster (t3.small spot instances)
+│   │   │   ├── eks/                 # EKS cluster (t3.large on-demand)
 │   │   │   ├── k8s/                 # Kubernetes resources
-│   │   │   │   ├── argocd-bootstrap/
-│   │   │   │   ├── external-secrets/
-│   │   │   │   └── apps/            # ArgoCD applications
-│   │   │   └── secrets/             # AWS Secrets Manager config
+│   │   │   │   ├── argocd/          # ArgoCD bootstrap
+│   │   │   │   └── apps/            # Deploy ArgoCD applications
+│   │   │   └── k8s-platform/        # Platform components
+│   │   │       ├── eso/             # External Secrets Operator
+│   │   │       └── cluster-secret-store/ # ClusterSecretStore
 │   │   └── prod/                    # Prod environment
 │   │       ├── vpc/                 # Network setup (10.0.0.0/16)
 │   │       ├── iam/                 # IAM roles and policies
 │   │       ├── ecr/                 # Container registry
 │   │       ├── eks/                 # EKS cluster (t3.medium on-demand)
 │   │       ├── k8s/                 # Kubernetes resources
-│   │       │   ├── argocd-bootstrap/
-│   │       │   ├── external-secrets/
-│   │       │   └── apps/            # ArgoCD applications
-│   │       └── secrets/             # AWS Secrets Manager config
+│   │       │   ├── argocd/          # ArgoCD bootstrap
+│   │       │   └── apps/            # Deploy ArgoCD applications
+│   │       └── k8s-platform/        # Platform components
+│   │           ├── eso/             # External Secrets Operator
+│   │           ├── alb-controller/  # AWS Load Balancer Controller
+│   │           └── cluster-secret-store/ # ClusterSecretStore
 │   ├── modules/                     # Terraform modules
 │   │   ├── argocd/                  # ArgoCD installation
 │   │   ├── argocd-apps/             # ArgoCD application deployment
@@ -190,51 +203,99 @@ locals {
 
 **Important**: The Terraform state is stored in S3. Ensure the bucket exists or update the backend configuration.
 
-### 3. Deploy Infrastructure
+## 🌐 Deployment Instructions
 
-#### Deploy Development Environment
-```bash
-# Navigate to dev environment
-cd infra/live/dev
+### Development Environment - Complete Setup
 
-# Deploy all infrastructure components
-terragrunt run-all apply --terragrunt-non-interactive
+```powershell
+# Step 1: Deploy VPC
+cd infra/live/dev/vpc
+terragrunt apply
 
-# Or deploy modules individually in order:
-cd vpc && terragrunt apply
-cd ../iam && terragrunt apply
-cd ../eks && terragrunt apply
-cd ../secrets && terragrunt apply
-cd ../k8s/argocd-bootstrap && terragrunt apply
-cd ../k8s/external-secrets && terragrunt apply
-cd ../k8s/apps && terragrunt apply
+# Step 2: Deploy IAM
+cd ../iam
+terragrunt apply
+
+# Step 3: Deploy EKS Cluster (takes ~15 minutes)
+cd ../eks
+terragrunt apply
+
+# Step 4: Update kubeconfig
+aws eks update-kubeconfig --region eu-central-1 --name dev-eks-cluster
+
+# Step 5: Deploy ArgoCD
+cd ../k8s/argocd
+terragrunt apply
+
+# Step 6: Deploy External Secrets Operator
+cd ../../k8s-platform/eso
+terragrunt apply
+
+# Step 7: Wait for CRDs to be ready (60 seconds)
+Start-Sleep -Seconds 60
+kubectl get crd | Select-String "external-secrets.io"
+
+# Step 8: Deploy ClusterSecretStore
+cd ../cluster-secret-store
+terragrunt apply
+
+# Step 9: Deploy ArgoCD Applications
+cd ../../k8s/apps
+terragrunt apply
+
+# Step 10: Get NLB endpoint
+kubectl get svc ingress-nginx-controller -n ingress-nginx
 ```
 
-#### Deploy Production Environment
-```bash
-# Navigate to prod environment
-cd infra/live/prod
+### Production Environment - Complete Setup
 
-# Deploy all infrastructure components
-terragrunt run-all apply --terragrunt-non-interactive
+```powershell
+# Step 1: Deploy VPC
+cd infra/live/prod/vpc
+terragrunt apply
 
-# Or deploy with specific order for first-time setup:
-# 1. Core infrastructure
-cd vpc && terragrunt apply
-cd ../iam && terragrunt apply
-cd ../ecr && terragrunt apply  # Prod only - for container images
-cd ../eks && terragrunt apply
+# Step 2: Deploy IAM
+cd ../iam
+terragrunt apply
 
-# 2. Kubernetes components
-cd ../secrets && terragrunt apply
-cd ../k8s/argocd-bootstrap && terragrunt apply
-cd ../k8s/external-secrets && terragrunt apply
+# Step 3: Deploy ECR (Production only)
+cd ../ecr
+terragrunt apply
 
-# 3. Deploy ArgoCD applications
-cd ../k8s/apps && terragrunt apply
+# Step 4: Deploy EKS Cluster (takes ~15 minutes)
+cd ../eks
+terragrunt apply
+
+# Step 5: Update kubeconfig
+aws eks update-kubeconfig --region eu-central-1 --name prod-eks-cluster
+
+# Step 6: Deploy ArgoCD
+cd ../k8s/argocd
+terragrunt apply
+
+# Step 7: Deploy External Secrets Operator
+cd ../../k8s-platform/eso
+terragrunt apply
+
+# Step 8: Deploy ALB Controller (Production only)
+cd ../alb-controller
+terragrunt apply
+
+# Step 9: Wait for CRDs (60 seconds)
+Start-Sleep -Seconds 60
+kubectl get crd | Select-String "external-secrets.io"
+
+# Step 10: Deploy ClusterSecretStore
+cd ../cluster-secret-store
+terragrunt apply
+
+# Step 11: Deploy ArgoCD Applications
+cd ../../k8s/apps
+terragrunt apply
+
+# Step 12: Get ALB endpoint
+kubectl get ingress -n ingress-nginx edge-ingress
 ```
-
-**Note**: First deployment may take 15-20 minutes for EKS cluster creation.
 
 ### 4. Configure kubectl
 
@@ -492,19 +553,30 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 
 ### Development Environment
 - **VPC CIDR**: 10.1.0.0/16
-- **Instance Type**: t3.small (spot instances)
-- **Node Count**: 1-2 (autoscaling disabled)
-- **Namespaces**: quiz-ai-dev, quiz-ai-stage
-- **Ingress**: Direct NLB (cost-optimized)
-- **Replicas**: 1 for all components
+- **Instance Type**: t3.large (on-demand)
+- **Node Count**: 1-2 nodes
+- **Namespaces**: 
+  - `app-dev` - Development application
+  - `quiz-ai-stage` - Staging application
+  - `ingress-nginx` - Ingress controller
+  - `external-secrets` - Secrets operator
+  - `argocd` - GitOps controller
+- **Load Balancer**: NLB (Network Load Balancer)
+- **Container Registry**: Docker Hub (public images)
+- **Resource Limits**: Minimal (1 replica per component)
 
 ### Production Environment  
 - **VPC CIDR**: 10.0.0.0/16
 - **Instance Type**: t3.medium (on-demand)
-- **Node Count**: 2-5 (with autoscaling)
-- **Namespace**: quiz-ai-prod
-- **Ingress**: ALB → NGINX (advanced routing)
-- **Replicas**: 2+ for high availability
+- **Node Count**: 2-5 nodes (with autoscaling)
+- **Namespaces**:
+  - `quiz-ai-prod` - Production application
+  - `ingress-nginx` - Ingress controller
+  - `external-secrets` - Secrets operator
+  - `argocd` - GitOps controller
+- **Load Balancer**: ALB → NGINX (dual-layer)
+- **Container Registry**: Amazon ECR
+- **Resource Limits**: HA (2+ replicas)
 
 ## 🛡️ Important Notes
 
@@ -514,38 +586,29 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 4. **Sync Waves**: ArgoCD applications deploy in waves to ensure proper dependency resolution.
 5. **Secret Rotation**: Update secrets in AWS Secrets Manager; ESO will auto-sync within 30 seconds.
 
-## 🧹 Cleanup
+## 🧹 Cleanup Instructions
 
-### Destroy Resources
-To completely remove all infrastructure:
+### Complete Environment Removal
 
-```bash
-# Destroy dev environment
+**Development:**
+```powershell
 cd infra/live/dev
 terragrunt run-all destroy --terragrunt-non-interactive
+```
 
-# Destroy prod environment  
+**Production:**
+```powershell
 cd infra/live/prod
 terragrunt run-all destroy --terragrunt-non-interactive
 ```
 
-**Warning**: This will permanently delete:
-- EKS clusters and all workloads
-- VPCs and networking resources
+**⚠️ Warning**: This will permanently delete all resources including:
+- EKS clusters and workloads
+- VPCs and subnets
 - IAM roles and policies
-- ECR repositories and images (prod)
+- ECR repositories (prod)
 - All Kubernetes resources
-
-### Partial Cleanup
-```bash
-# Remove only Kubernetes apps
-cd infra/live/prod/k8s/apps
-terragrunt destroy
-
-# Remove only ArgoCD
-cd infra/live/prod/k8s/argocd-bootstrap
-terragrunt destroy
-```
+- Application data
 
 ## 📝 GitHub Actions Configuration
 
@@ -617,32 +680,36 @@ kubectl get pods -n quiz-ai-prod
 kubectl describe deployment quiz-ai-application -n quiz-ai-prod
 ```
 
-## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch from `develop`
-3. Make your changes and test in dev environment
-4. Update documentation if needed
-5. Submit a pull request with clear description
-6. After review and approval, changes will be merged
+## 📚 About Quiz AI
 
-## 🎯 Roadmap
+Quiz AI is an educational platform that leverages artificial intelligence to create personalized learning experiences through interactive quizzes. The platform consists of:
 
-- [ ] Add Prometheus & Grafana monitoring stack
-- [ ] Implement Horizontal Pod Autoscaling (HPA)
-- [ ] Add Network Policies for enhanced security
-- [ ] Implement Velero for backup and disaster recovery
-- [ ] Add Karpenter for advanced node autoscaling
-- [ ] Integrate SonarQube for code quality scanning
-- [ ] Add Vault for enhanced secret management
+- **Frontend**: React-based web application for user interaction
+- **Backend**: Node.js API server handling quiz logic and AI integration
+- **Database**: MySQL database for persistent storage
+- **Infrastructure**: Cloud-native deployment on AWS EKS
 
-## 📄 License
+This repository manages the complete infrastructure deployment, enabling:
+- Automated deployments through GitOps
+- Zero-downtime updates
+- Secure secret management
+- Multi-environment support
+- Cost-optimized resource allocation
 
-This project is part of the Quiz AI platform infrastructure.
+## 🔗 Key Technologies
 
----
+- **Terragrunt/Terraform**: Infrastructure as Code
+- **AWS EKS**: Managed Kubernetes
+- **ArgoCD**: GitOps continuous delivery
+- **External Secrets Operator**: AWS Secrets Manager integration
+- **NGINX Ingress**: Traffic routing
+- **Helm**: Package management
+- **Docker Hub/ECR**: Container registries
 
-**Repository**: quiz_ai_infra  
-**Maintainer**: DevOps Team  
-**Last Updated**: November 2024  
-**Infrastructure**: AWS EKS with Terragrunt/ArgoCD
+## 📧 Contact
+
+**Repository**: [github.com/Ilay1214/quiz_ai_infra](https://github.com/Ilay1214/quiz_ai_infra)  
+**Project**: Quiz AI Infrastructure  
+**Last Updated**: November 2025  
+**Platform**: AWS EKS with GitOps

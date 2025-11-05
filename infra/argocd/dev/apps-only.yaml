@@ -13,12 +13,9 @@ spec:
     path: infra/argocd/dev
     directory:
       include: |
+        ingress-nginx.yaml
         quiz-ai-dev.yaml
         quiz-ai-stage.yaml
-        ingress-nginx.yaml
-      exclude: |
-        external-secrets-operator.yaml
-        external-secrets-config.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd

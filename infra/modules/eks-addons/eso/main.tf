@@ -14,25 +14,25 @@ terraform {
 
 # External Secrets Operator Helm Release
 resource "helm_release" "external_secrets" {
-  name       = var.release_name
+  name = var.release_name
   repository = "https://charts.external-secrets.io"
-  chart      = "external-secrets"
-  version    = var.chart_version
-  namespace  = var.namespace
+  chart = "external-secrets"
+  version = var.chart_version
+  namespace = var.namespace
 
   create_namespace = true
-  wait            = true
-  wait_for_jobs   = true
-  timeout         = 600
+  wait = true
+  wait_for_jobs = true
+  timeout = 600
 
   values = [
     templatefile("${path.module}/values.yaml.tpl", {
       eso_irsa_role_arn = var.eso_irsa_role_arn
-      replica_count     = var.replica_count
-      cpu_request       = var.cpu_request
-      memory_request    = var.memory_request
-      cpu_limit         = var.cpu_limit
-      memory_limit      = var.memory_limit
+      replica_count = var.replica_count
+      cpu_request = var.cpu_request
+      memory_request = var.memory_request
+      cpu_limit = var.cpu_limit
+      memory_limit = var.memory_limit
     })
   ]
 

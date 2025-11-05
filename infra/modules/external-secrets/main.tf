@@ -1,13 +1,13 @@
 resource "helm_release" "external_secrets" { 
-  count            = var.enable_k8s ? 1 : 0 
-  name             = "external-secrets" 
-  repository       = "https://charts.external-secrets.io" 
-  chart            = "external-secrets" 
-  namespace        = "external-secrets" 
-  version          = "0.10.4" 
+  count = var.enable_k8s ? 1 : 0 
+  name = "external-secrets" 
+  repository = "https://charts.external-secrets.io" 
+  chart = "external-secrets" 
+  namespace = "external-secrets" 
+  version = "0.10.4" 
   create_namespace = true 
-  wait             = true
-  wait_for_jobs    = true
+  wait = true
+  wait_for_jobs = true
   
   set =[{
     name  = "installCRDs"
@@ -31,7 +31,7 @@ resource "helm_release" "external_secrets" {
   ]
 }
 
-# Wait for CRDs to be fully available in the API server
+# Wait for CRDs to be fully available 
 resource "time_sleep" "wait_for_crds" {
   count = var.enable_k8s ? 1 : 0
   

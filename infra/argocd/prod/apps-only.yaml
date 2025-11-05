@@ -15,10 +15,8 @@ spec:
       include: |
         quiz-ai-prod.yaml
         ingress-nginx.yaml
-      exclude: |
-        external-secrets-operator.yaml
-        aws-load-balancer-controller.yaml
-        external-secrets-config.yaml
+        edge-ingress.yaml
+
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd

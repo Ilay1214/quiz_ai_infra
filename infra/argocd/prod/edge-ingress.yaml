@@ -4,7 +4,7 @@ metadata:
   name: edge-ingress
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "4"  
+    argocd.argoproj.io/sync-wave: "2"  
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
