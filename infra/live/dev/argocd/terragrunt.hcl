@@ -22,7 +22,7 @@ dependency "eks" {
 }
 
 generate "provider_k8s" {
-  path      = "provider_k8s.generated.tf"
+  path = "provider_k8s.generated.tf"
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
 
@@ -54,7 +54,7 @@ terraform {
 
 inputs = {
   environment = local.env_sanitized
-  enable_apps  = false  # Don't create apps here, just install ArgoCD
+  enable_apps  = false  
   app_manifest_path  = ""
   app_manifest_paths = []
 }

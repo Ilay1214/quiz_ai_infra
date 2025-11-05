@@ -39,7 +39,7 @@ resource "helm_release" "external_secrets" {
   depends_on = [var.eks_cluster_id]
 }
 
-# Wait for CRDs to be fully registered
+# Wait for CRDs to be fully install 
 resource "time_sleep" "wait_for_crds" {
   depends_on = [helm_release.external_secrets]
   create_duration = "60s"

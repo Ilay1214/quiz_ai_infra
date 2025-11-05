@@ -14,26 +14,26 @@ terraform {
 
 # AWS Load Balancer Controller Helm Release
 resource "helm_release" "aws_load_balancer_controller" {
-  name       = var.release_name
+  name = var.release_name
   repository = "https://aws.github.io/eks-charts"
-  chart      = "aws-load-balancer-controller"
-  version    = var.chart_version
-  namespace  = var.namespace
+  chart = "aws-load-balancer-controller"
+  version = var.chart_version
+  namespace = var.namespace
 
   create_namespace = false  # Should already exist (kube-system)
-  wait            = true
-  wait_for_jobs   = true
-  timeout         = 600
+  wait = true
+  wait_for_jobs = true
+  timeout = 600
 
   values = [
     templatefile("${path.module}/values.yaml.tpl", {
-      cluster_name          = var.cluster_name
-      region               = var.aws_region
-      vpc_id               = var.vpc_id
+      cluster_name = var.cluster_name
+      region = var.aws_region
+      vpc_id = var.vpc_id
       alb_controller_irsa_role_arn = var.alb_controller_irsa_role_arn
-      replica_count        = var.replica_count
-      cpu_request          = var.cpu_request
-      memory_request       = var.memory_request
+      replica_count = var.replica_count
+      cpu_request = var.cpu_request
+      memory_request = var.memory_request
     })
   ]
 

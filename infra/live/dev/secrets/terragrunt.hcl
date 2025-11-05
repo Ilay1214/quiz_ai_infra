@@ -63,15 +63,19 @@ inputs = {
   sa_namespace = "external-secrets"
   mysql_ca_property  = "MYSQL_CA_CERT"
   namespaces = { 
-    prod = { 
-      name = "quiz-ai-prod"
-      remote_key = "prod/quiz-ai"
-    } 
+    dev = { 
+      name = "app-dev"
+      remote_key = "prod/quiz-ai"  
+    },
+    stage = {
+      name = "quiz-ai-stage"
+      remote_key = "prod/quiz-ai"  
+    }
   } 
 }
 
 dependencies {
   paths = [
-    "../k8s/external-secrets"
+    "../k8s-platform/eso"
   ]
 }

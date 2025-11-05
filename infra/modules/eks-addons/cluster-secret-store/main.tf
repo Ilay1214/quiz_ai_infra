@@ -12,7 +12,7 @@ terraform {
 resource "kubernetes_manifest" "cluster_secret_store" {
   manifest = {
     apiVersion = "external-secrets.io/v1beta1"
-    kind       = "ClusterSecretStore"
+    kind = "ClusterSecretStore"
     metadata = {
       name = var.secret_store_name
     }
@@ -20,11 +20,11 @@ resource "kubernetes_manifest" "cluster_secret_store" {
       provider = {
         aws = {
           service = "SecretsManager"
-          region  = var.aws_region
+          region = var.aws_region
           auth = {
             jwt = {
               serviceAccountRef = {
-                name      = var.eso_service_account
+                name = var.eso_service_account
                 namespace = var.eso_namespace
               }
             }

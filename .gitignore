@@ -53,3 +53,7 @@ infra/live/prod/k8s-platform/cluster-secret-store/.terragrunt-cache/
 infra/live/prod/k8s-platform/eso/.terraform.lock.hcl
 infra/live/prod/k8s-platform/eso/.terragrunt-cache/
 
+infra/live/dev/k8s-platform/cluster-secret-store/.terraform.lock.hcl
+infra/live/dev/k8s-platform/cluster-secret-store/.terragrunt-cache/
+infra/live/dev/k8s-platform/eso/.terraform.lock.hcl
+infra/live/dev/k8s-platform/eso/.terragrunt-cache/

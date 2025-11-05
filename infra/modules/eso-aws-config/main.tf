@@ -3,7 +3,7 @@ resource "kubernetes_manifest" "cluster_secret_store" {
 
   manifest = {
     apiVersion = "external-secrets.io/v1beta1"
-    kind       = "ClusterSecretStore"
+    kind = "ClusterSecretStore"
     metadata = {
       name = var.secret_store_name
     }
@@ -40,9 +40,9 @@ resource "kubernetes_manifest" "app_env" {
 
   manifest = {
     apiVersion = "external-secrets.io/v1beta1"
-    kind       = "ExternalSecret"
+    kind = "ExternalSecret"
     metadata = {
-      name      = "app-env"
+      name = "app-env"
       namespace = each.value.name
     }
     spec = {
@@ -52,7 +52,7 @@ resource "kubernetes_manifest" "app_env" {
         kind = "ClusterSecretStore"
       }
       target = {
-        name           = "app-env"
+        name = "app-env"
         creationPolicy = "Owner"
       }
       dataFrom = [
@@ -76,9 +76,9 @@ resource "kubernetes_manifest" "mysql_ca" {
 
   manifest = {
     apiVersion = "external-secrets.io/v1beta1"
-    kind       = "ExternalSecret"
+    kind = "ExternalSecret"
     metadata = {
-      name      = "mysql-ca"
+      name = "mysql-ca"
       namespace = each.value.name
     }
     spec = {
@@ -88,14 +88,14 @@ resource "kubernetes_manifest" "mysql_ca" {
         kind = "ClusterSecretStore"
       }
       target = {
-        name           = "mysql-ca"
+        name = "mysql-ca"
         creationPolicy = "Owner"
       }
       data = [
         {
           secretKey = "ca.pem"
           remoteRef = {
-            key      = each.value.remote_key
+            key = each.value.remote_key
             property = var.mysql_ca_property
           }
         }

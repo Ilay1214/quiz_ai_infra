@@ -1,12 +1,12 @@
-# infra/live/prod/k8s/argocd/terragrunt.hcl
+# infra/live/dev/k8s/argocd/terragrunt.hcl
 include "root" {
   path   = "${get_repo_root()}/infra/live/terragrunt.hcl"
   expose = true
 }
 
 locals {
-  raw_environment = try(include.root.locals.environment, "prod")
-  environment = (local.raw_environment == "" || local.raw_environment == "/") ? "prod" : local.raw_environment
+  raw_environment = try(include.root.locals.environment, "dev")
+  environment = (local.raw_environment == "" || local.raw_environment == "/") ? "dev" : local.raw_environment
   env_sanitized = replace(replace(replace(local.environment, " ", "-"), "/", "-"), "\\", "-")
 }
 
