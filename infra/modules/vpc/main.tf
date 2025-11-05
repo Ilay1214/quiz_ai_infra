@@ -29,5 +29,6 @@ module "vpc" {
   tags = merge(var.common_tags, {
     Terraform = "true"
     Environment = var.environment
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
   })
 }

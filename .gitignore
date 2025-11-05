@@ -46,4 +46,10 @@ infra/live/dev/argocd/.terragrunt-cache/
 infra/live/dev/argocd/.terraform.lock.hcl
 infra/live/dev/secrets/.terragrunt-cache/
 infra/live/dev/secrets/.terraform.lock.hcl
+infra/live/prod/k8s-platform/alb-controller/.terraform.lock.hcl
+infra/live/prod/k8s-platform/alb-controller/.terragrunt-cache/
+infra/live/prod/k8s-platform/cluster-secret-store/.terraform.lock.hcl
+infra/live/prod/k8s-platform/cluster-secret-store/.terragrunt-cache/
+infra/live/prod/k8s-platform/eso/.terraform.lock.hcl
+infra/live/prod/k8s-platform/eso/.terragrunt-cache/
 

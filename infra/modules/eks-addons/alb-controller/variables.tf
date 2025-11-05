@@ -68,9 +68,3 @@ variable "memory_request" {
   type        = string
   default     = "128Mi"
 }
-
-variable "enable_subnet_tagging" {
-  description = "Enable automatic subnet tagging for ALB auto-discovery"
-  type        = bool
-  default     = true
-}

@@ -1,18 +1,69 @@
 # External Secrets Operator deployment for production
 include "root" {
-  path = find_in_parent_folders()
+  path   = "${get_repo_root()}/infra/live/terragrunt.hcl"
+  expose = true
 }
-
 terraform {
   source = "${get_repo_root()}/infra/modules/eks-addons/eso"
 }
 
+generate "k8s_provider" {
+  path      = "k8s_provider.tf"
+  if_exists = "overwrite_terragrunt"
+  contents  = <<EOF
+
+
+provider "helm" {
+  kubernetes = {
+    host                   = "${dependency.eks.outputs.cluster_endpoint}"
+    cluster_ca_certificate = base64decode("${dependency.eks.outputs.cluster_certificate_authority_data}")
+    exec = {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "aws"
+      args = [
+        "eks",
+        "get-token",
+        "--cluster-name",
+        "${dependency.eks.outputs.cluster_name}"
+      ]
+    }
+  }
+}
+
+provider "kubernetes" {
+  host                   = "${dependency.eks.outputs.cluster_endpoint}"
+  cluster_ca_certificate = base64decode("${dependency.eks.outputs.cluster_certificate_authority_data}")
+  exec = {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "aws"
+    args = [
+      "eks",
+      "get-token",
+      "--cluster-name",
+      "${dependency.eks.outputs.cluster_name}"
+    ]
+  }
+}
+EOF
+}
+
 dependency "eks" {
   config_path = "../../eks"
+  mock_outputs = {
+    cluster_name = "prod-eks"
+    cluster_endpoint = "https://prod-eks-endpoint"
+    cluster_certificate_authority_data = "bW9jay1jYS1kYXRh"
+    eso_irsa_role_arn = "arn:aws:iam::123456789012:role/eso-irsa"
+  }
+  mock_outputs_allowed_terraform_commands = ["validate", "plan","init"]
 }
 
 dependency "vpc" {
   config_path = "../../vpc"
+  mock_outputs = {
+    vpc_id = "vpc-12345678"
+  }
+  mock_outputs_allowed_terraform_commands = ["validate", "plan","init"]
 }
 
 inputs = {

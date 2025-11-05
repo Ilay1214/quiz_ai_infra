@@ -39,23 +39,3 @@ resource "helm_release" "aws_load_balancer_controller" {
 
   depends_on = [var.eks_cluster_id]
 }
-
-# Tag VPC and subnets for auto-discovery
-resource "null_resource" "subnet_tags" {
-  count = var.enable_subnet_tagging ? 1 : 0
-
-  provisioner "local-exec" {
-    command = <<-EOT
-      aws ec2 create-tags --resources ${join(" ", var.public_subnet_ids)} \
-        --tags Key=kubernetes.io/role/elb,Value=1 \
-               Key=kubernetes.io/cluster/${var.cluster_name},Value=shared
-      
-      aws ec2 create-tags --resources ${join(" ", var.private_subnet_ids)} \
-        --tags Key=kubernetes.io/role/internal-elb,Value=1 \
-               Key=kubernetes.io/cluster/${var.cluster_name},Value=shared
-      
-      aws ec2 create-tags --resources ${var.vpc_id} \
-        --tags Key=kubernetes.io/cluster/${var.cluster_name},Value=shared
-    EOT
-  }
-}

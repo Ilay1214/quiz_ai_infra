@@ -1,50 +1,18 @@
 # Platform components for production EKS cluster
 include "root" {
-  path = find_in_parent_folders()
+  path   = "${get_repo_root()}/infra/live/terragrunt.hcl"
+  expose = true
 }
 
 dependency "eks" {
   config_path = "../eks"
-}
-
-generate "provider" {
-  path      = "provider.tf"
-  if_exists = "overwrite_terragrunt"
-  contents  = <<EOF
-provider "aws" {
-  region = "eu-central-1"
-}
-
-provider "helm" {
-  kubernetes {
-    host                   = "${dependency.eks.outputs.cluster_endpoint}"
-    cluster_ca_certificate = base64decode("${dependency.eks.outputs.cluster_certificate_authority_data}")
-    exec {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      command     = "aws"
-      args = [
-        "eks",
-        "get-token",
-        "--cluster-name",
-        "${dependency.eks.outputs.cluster_name}"
-      ]
-    }
+  mock_outputs = {
+    cluster_name = "prod-eks"
+    cluster_endpoint = "https://prod-eks-endpoint"
+    cluster_certificate_authority_data = "bW9jay1jYS1kYXRh"
+    cluster_autoscaler_irsa_role_arn = "arn:aws:iam::111122223333:role/mock-ca-irsa"
   }
+  mock_outputs_allowed_terraform_commands = ["validate", "plan","init"]
 }
 
-provider "kubernetes" {
-  host                   = "${dependency.eks.outputs.cluster_endpoint}"
-  cluster_ca_certificate = base64decode("${dependency.eks.outputs.cluster_certificate_authority_data}")
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "aws"
-    args = [
-      "eks",
-      "get-token",
-      "--cluster-name",
-      "${dependency.eks.outputs.cluster_name}"
-    ]
-  }
-}
-EOF
-}
+# Provider configuration moved to individual child modules

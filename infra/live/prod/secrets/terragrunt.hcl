@@ -55,9 +55,9 @@ generate "provider_k8s" {
 terraform { source = "${get_repo_root()}/infra/modules/eso-aws-config" }
 
 inputs = { 
-  enable_k8s  = false 
+  enable_k8s  = true 
   region  = "eu-central-1"
-  create_cluster_secret_store = true
+  create_cluster_secret_store = false
   secret_store_name = "aws-secrets-manager"
   sa_name  = "external-secrets"
   sa_namespace = "external-secrets"
@@ -72,6 +72,7 @@ inputs = {
 
 dependencies {
   paths = [
-    "../k8s/external-secrets"
+    "../k8s-platform/eso",
+    "../k8s-platform/cluster-secret-store"
   ]
 }
