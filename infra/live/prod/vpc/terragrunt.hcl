@@ -6,12 +6,12 @@ include "root" {
   expose = true
 }
 locals {
-    env = include.root.locals.environment
+    env = "prod"  # Explicitly set to prod to avoid path parsing issues
     project = include.root.locals.project
-    cluster_name = "${local.env}-eks-cluster"
+    cluster_name = "prod-eks-cluster"  # Explicitly set cluster name
     tags = {
      project = include.root.locals.project
-     environment = local.env
+     environment = "prod"
 
     }
 }

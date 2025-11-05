@@ -11,7 +11,7 @@ terraform {
 # ClusterSecretStore for AWS Secrets Manager
 resource "kubernetes_manifest" "cluster_secret_store" {
   manifest = {
-    apiVersion = "external-secrets.io/v1"
+    apiVersion = "external-secrets.io/v1beta1"
     kind       = "ClusterSecretStore"
     metadata = {
       name = var.secret_store_name

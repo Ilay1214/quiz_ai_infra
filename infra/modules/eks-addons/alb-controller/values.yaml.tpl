@@ -25,6 +25,8 @@ ingressClass: alb
 
 # Enable webhook
 webhookPort: 9443
+webhook:
+  failurePolicy: Ignore  # Don't fail if webhook is not ready
 
 # Monitoring
 metrics:

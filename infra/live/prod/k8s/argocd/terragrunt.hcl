@@ -51,6 +51,12 @@ terraform {
   source = "${get_repo_root()}/infra/modules/argocd"
 }
 
+dependencies {
+  paths = [
+    "../../k8s-platform/alb-controller"  # Wait for ALB controller to be ready
+  ]
+}
+
 inputs = {
   environment = local.env_sanitized
   enable_apps  = false  # Don't create apps here, just install ArgoCD
